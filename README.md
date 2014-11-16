@@ -1,4 +1,6 @@
-oils-dms
+oils-plugin-wateroo-cms
 ========
 
-A simple Document Management System (DMS) plugin for Oils JS Framework
+Wateroo is a simple Content Management System (CMS) plugin for Oils JS Framework.
+
+
