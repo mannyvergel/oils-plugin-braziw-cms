@@ -1,4 +1,4 @@
-oils-plugin-wateroo-cms
-=======================
+oils-dms
+========
 
-Content Management System (CMS) plugin for Oils JS framework
+A simple Document Management System (DMS) plugin for Oils JS Framework

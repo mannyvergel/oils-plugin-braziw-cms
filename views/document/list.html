@@ -1,0 +1,152 @@
+{% extends 'templates/main.html' %}
+
+{% block title %}Document List{% endblock %}
+
+{% block head %}
+<style>
+
+div.file {
+  width: 14px;
+  height: 20px;
+  position: relative;
+  text-align: center;
+}
+
+div.file:after {
+  content: " ";
+  width: 100%;
+  height: 100%;
+  border-radius: 1px;
+
+  display: block;
+  border:1px solid #555;
+  background: #eee;
+  position: absolute;
+
+}
+
+div.folder {
+  width: 20px;
+  height: 14px;
+  position: relative;
+  text-align: center;
+}
+
+div.folder:after {
+  content: " ";
+  width: 100%;
+  height: 100%;
+  border-radius: 0 2px 2px 2px;
+  display: block;
+  background-color: #555;
+  position: absolute;
+  top: 25%;    
+}
+
+div.folder:before {
+  content: " ";
+  width: 40%;
+  height: 25%;
+  border-radius: 2px 8px 0 0;
+  display: block;
+  background-color: #555;
+  position: absolute;
+  
+}
+
+table.doc-list tr {
+  height: 30px;
+}
+
+table.doc-list td {
+}
+
+table.doc-list th {
+  text-align: left;
+  padding-right: 12px;
+}
+
+ul.navigation {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  margin-top: 12px;
+}
+ul.navigation li {
+  float: left;
+  margin-right: 4px;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+
+<a class="tiny button" href="{{context|safe}}/document/add?folderId={{folderId}}">Add File</a>
+
+<a class="tiny button" href="{{context|safe}}/document/add?isFolder=y&folderId={{folderId}}">New Folder</a>
+
+
+<ul class="navigation">
+  {%if parentFolders%}
+  <li><a href="{{context|safe}}/document/list">Root</a></li>
+  {%for parentFolder in parentFolders%}
+  <li>/ 
+    {%if loop.last%}
+    {{parentFolder.name}}
+    {%else%}
+    <a href="{{context|safe}}/document/list?folderId={{parentFolder._id.toString()}}">{{parentFolder.name}}</a>
+    {%endif%}
+
+  </li>
+  {%endfor%}
+  {%else%}
+  <li>Root</li>
+  {%endif%}
+</ul>
+
+<div style="clear: both"></div>
+<table class="doc-list">
+  <thead>
+    <tr>
+      <th>Edit</th>
+      <th colspan="2">
+        Name
+      </th>
+    </tr>
+  </thead>
+  <tbody>
+    {%if documents %}
+    {%for document in documents %}
+    <tr>
+      <td><a href="{{context|safe}}/document/edit/{{document._id.toString()}}?docType={{document.docType}}">Edit</a></td>
+      <td>
+        {%if document.isFolder%}
+        <div class="folder"></div>
+        {%else%}
+        <div class="file"></div>
+        {%endif%}
+      </td>
+      <td>
+        {%if document.isFolder%}
+        <a href="?folderId={{document._id.toString()}}">{{document.name}}</a>
+        {%else%}
+        {{document.name}}
+        {%endif%}
+
+
+      </td>
+    </tr>
+    {%endfor%}
+
+    {%else%}
+    <tr>
+      <td colspan="3">
+        No documents found.
+      </td>
+    </tr>
+    {%endif%}
+  </tbody>
+</table>
+
+{% endblock %}
+
