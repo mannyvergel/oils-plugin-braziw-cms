@@ -32,7 +32,7 @@ module.exports = function(pluginConf, web, wcmSettings) {
      
       getSource: function(name, callback) {
 
-          var fullpath = path.join(this.basePath, name);
+          var fullpath = path.resolve(this.basePath, name);
          
           this.pathsToNames[fullpath] = name;
 

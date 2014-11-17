@@ -32,6 +32,6 @@
   "bundleDependencies": [],
 
   "private": true,
-  "main": "oils-dms.js"
+  "main": "oils-cms.js"
   
 }
