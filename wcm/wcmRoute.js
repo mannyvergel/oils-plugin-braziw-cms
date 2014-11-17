@@ -2,7 +2,7 @@
 //var Promise = require('es6-promise').Promise;
 //var extras = require('swig-extras');
 var nunjucks = require('nunjucks');
-
+var path = require('path');
 module.exports = function(pluginConf, web, wcmSettings) {
   var dmsUtils = web.dms.utils;
   var wcmConstants = web.dms.wcm.constants;
@@ -22,8 +22,6 @@ module.exports = function(pluginConf, web, wcmSettings) {
 
   var wcm = web.dms.wcm;
 
-  //var Swig = require('swig-promise').Swig;
-  //wcm.swigMongo = new Swig();
   var NunjucksMongoLoader = nunjucks.Loader.extend({
     async: true,
     init: function(basePath) {
@@ -34,14 +32,17 @@ module.exports = function(pluginConf, web, wcmSettings) {
      
       getSource: function(name, callback) {
 
-          var fullpath = this.basePath + name;
+          var fullpath = path.join(this.basePath, name);
          
           this.pathsToNames[fullpath] = name;
 
           dmsUtils.retrieveDoc(fullpath, function(err, doc) {
             if (err) {throw err}
-            if (!doc) {throw new Error('Document not found '+ fullpath)}
-            callback(err, doc.content);
+            if (!doc) {
+              callback(new Error('Path not found '+ fullpath));
+            }
+             
+            callback(err, {src: doc.content.toString('utf-8'), path: fullpath});
           })
       }
   });
@@ -50,24 +51,6 @@ module.exports = function(pluginConf, web, wcmSettings) {
 
   wcm.templateEngine = new nunjucks.Environment(nunjucksLoader, {autoescape: true});
   
-/*
-  markedSwig.useFilter(wcm.swigMongo);
-  markedSwig.useTag(wcm.swigMongo);
-  extras.useFilter(wcm.swigMongo, 'truncate')
-*/
-
-  // var defaultOptions = {
-  //   autoescape: true,
-  //   varControls: ['{{', '}}'],
-  //   tagControls: ['{%', '%}'],
-  //   cmtControls: ['{#', '#}'],
-  //   locals: {},
-  //   cache: 'memory',
-  //   loader: require('./utils/swigMongoLoader')(pkg, app, wcmSettings)
-  // }
-  // wcm.swigMongo.options = defaultOptions;
-  
-  //var route = '/^\/app\/static\/(.*)/';
 
   var getRegexFromStr = function(regexStr) {
     var flags = regexStr.replace(/.*\/([gimy]*)$/, '$1');
@@ -124,65 +107,15 @@ module.exports = function(pluginConf, web, wcmSettings) {
   }
 
   var renderMongoPath = function(path, req, res, next) {
-    wcm.templateEngine.render(path);
-    next();
-  }
-
-  /*var renderMongoPath = function(path, req, res, next) {
-    dmsUtils.retrieveDoc('/web/views/' + path, function(err, doc) {
-
-      var promiseOptions = new Promise(function(resolve, reject) {
-        var controller = null;
-        if (doc) {
-          controller = doc.controller;
-        }
-        if (controller) {
-          var controllerJs = web.include(controller);
-          controllerJs(function(err, options) {
-            if (err) throw err;
-
-            resolve(options);
-          }, req, res, next, doc)
-        } else {
-          resolve();
-        }
-      })
-
-      promiseOptions.then(function(options) {
-        options = options || {};
-        options['_errors'] = req.flash('error');
-        options['_infos'] = req.flash('info');
-        options['_user'] = req.user;
-        //console.log('!!!' + JSON.stringify(options));
-         wcm.swigMongo.renderFile(path, options, function(err, content) {
-            if (err) {
-              if (err.message == 'NEXT') {
-                if (console.isDebug) {
-                  console.debug('Calling NEXT from mongo views handler.');
-                }
-                next();
-              } else {
-                res.send(500); 
-                throw err;
-              }
-
-              return;
-            }
-            res.setHeader('Content-Type', 'text/html');
-            res.end(content);
-          })
-      }, function(err){
-        console.error(err);
-        res.send(500);
+    wcm.templateEngine.render(path, {}, function(err, res2) {
+      if (err) {
+        res.status(500).send(err);
         throw err;
-      } )
-       
-      
-      
-    })
+      }
+      res.send(res2);
+    });
     
   }
-  */
 
   var viewsHandler = function() {
     return function(req, res, next) {
