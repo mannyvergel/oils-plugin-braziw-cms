@@ -40,15 +40,18 @@ module.exports = function(pluginConf, web) {
     })
   })
 
+  web.on('initServer', function() {
 
-  web.on('initializeServer', function() {
-    
-    var SysPar = models('SysPar');
-
-    SysPar.findOne({key: 'RUN_ONCE'}, function(err, syspar) {
+    if (!web.syspars) {
+      console.warn('wateroo cms needs oils-plugin-syspars plugin');
+      return;
+    }
+    web.syspars.get('DMS_RUN_ONCE', function(err, syspar) {
       if (!syspar) {
       //if (true) {
-        var User = models('User');
+
+        if (web.auth) {
+        var User = web.auth.UserModel;
 
 
         var saveAdminUser = function() {
@@ -75,13 +78,15 @@ module.exports = function(pluginConf, web) {
           }
           
         });
+      }
 
         //make sure folders exists in dms
          
         var fs = require('fs')
         async.series([
           function(callback) {
-             fs.readFile('./conf/plugins/oils-dms/wcm/templates/main.html', 'utf8', function (err,data) {
+            //fs.readFile is relative to project folder
+             fs.readFile('./node_modules/oils-plugin-wateroo-cms/wcm/templates/main.html', 'utf8', function (err,data) {
               if (err) {
                 return console.error(err);
               }
@@ -91,7 +96,7 @@ module.exports = function(pluginConf, web) {
           },
 
           function(callback) {
-             fs.readFile('./conf/plugins/oils-dms/wcm/templates/index.html', 'utf8', function (err,data) {
+             fs.readFile('./node_modules/oils-plugin-wateroo-cms/wcm/templates/index.html', 'utf8', function (err,data) {
                 if (err) {
                   return console.error(err);
                 }
@@ -111,10 +116,12 @@ module.exports = function(pluginConf, web) {
            
 
 
-        syspar = new SysPar();
+        /*syspar = new SysPar();
         syspar.key = 'RUN_ONCE';
         syspar.val = 'Y';
-        syspar.save();
+        syspar.save();*/
+
+        web.syspars.set('DMS_RUN_ONCE', 'Y')
       }
     });
   });

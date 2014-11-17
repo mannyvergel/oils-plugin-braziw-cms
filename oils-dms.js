@@ -36,5 +36,7 @@ module.exports = function WaterooCms(pluginConf, web, next) {
 
   var WCM = require('./wcm/wcm.js');
   self.wcm = new WCM(pluginConf, web);
+
+  next();
 }
 
