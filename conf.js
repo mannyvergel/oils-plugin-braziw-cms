@@ -1,11 +1,14 @@
-module.exports = {
-    "context": "/dms",
+module.exports = function(pluginConf) {
+  var pluginPath = pluginConf.pluginPath;
+  return {
+    "context": "/admin",
+    "accessRole": "Admin",
     "models": {
-      "document": "/node_modules/oils-plugin-wateroo-cms/models/Document.js"
+      "document": pluginPath + "/models/Document.js"
     },
     "views": {
-      "list": "/node_modules/oils-plugin-wateroo-cms/views/document/list.html",
-      "addDocument": "/node_modules/oils-plugin-wateroo-cms/views/document/add.html"
+      "list": pluginPath + "/views/document/list.html",
+      "addDocument": pluginPath + "/views/document/add.html"
     },
     "editables": [{"name": "name", "type": "text", "label": "Name", "required": true},
     {"name": "route", "type": "text", "label": "Route"},
@@ -14,3 +17,5 @@ module.exports = {
     ],
     "numberOfRecordsPerPage" : 10
   }
+
+}

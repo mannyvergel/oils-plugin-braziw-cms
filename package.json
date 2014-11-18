@@ -13,10 +13,10 @@
     "email": "manny@mvergel.com",
     "url": "http://www.mvergel.com/"
   },
-  "homepage": "http://mannyvergel.github.io/oils-js",
+  "homepage": "http://www.github.com/mannyvergel/oils-plugin-wateroo-cms",
   "repository": {
     "type": "git",
-    "url": "https://github.com/mannyvergel/oils-js.git"
+    "url": "https://www.github.com/mannyvergel/oils-plugin-wateroo-cms.git"
   },
 
   "engines": {
@@ -25,8 +25,7 @@
 
   "dependencies": {
     "async": "0.2.x",
-    "mongoose": "3.8.x",
-    "nunjucks": "1.1.x"
+    "mongoose": "3.8.x"
   },
   "devDependencies": {},
   "bundleDependencies": [],

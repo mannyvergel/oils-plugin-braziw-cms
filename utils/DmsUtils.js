@@ -279,7 +279,7 @@ module.exports = function(pluginConf, web) {
             doc.parentFolderId = parentDoc._id;
           }
 
-          doc.docType = web.constants.dms.file;
+          doc.docType = web.dms.constants.file;
 
           if (optionalContent) {
             doc.content = new Buffer(optionalContent, "utf8");
@@ -325,7 +325,7 @@ module.exports = function(pluginConf, web) {
         doc.name = folderName;
         
         doc.parentFolderId = parentFolderId;
-        doc.docType = web.constants.dms.folder;
+        doc.docType = web.dms.constants.folder;
         doc.save(function(err) {
           if (err) {
             console.error(err);

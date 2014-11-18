@@ -2,9 +2,9 @@
 
 module.exports = function WaterooCms(pluginConf, web, next) {
   var self = this;
-  web.dms = self;
 
-  pluginConf = web.utils.extend(require('./conf.js'), pluginConf);
+  web.dms = self;
+  pluginConf = web.utils.extend(require('./conf.js')(pluginConf), pluginConf);
 
   var context = pluginConf.context;
   
@@ -13,13 +13,22 @@ module.exports = function WaterooCms(pluginConf, web, next) {
 
   var DmsUtils = require('./utils/DmsUtils');
   
-  self.utils = new DmsUtils(pluginConf, web);
-  web.constants.dms = new Object();
-  web.constants.dms.file = 'file';
-  web.constants.dms.folder = 'folder';
+  web.dms.utils = new DmsUtils(pluginConf, web);
+  web.dms.constants = new Object();
+  web.dms.constants.file = 'file';
+  web.dms.constants.folder = 'folder';
 
-  web.dms.docTypes = [web.constants.dms.folder, web.constants.dms.file];
+  web.dms.docTypes = [web.dms.constants.folder, web.dms.constants.file];
   //app.dms.conf = pkg.oils;
+  if (web.auth && pluginConf.accessRole) {
+    
+    self.routes['/\/' + context + '*/'] = {
+      isRegexp: true,
+      all: function(req, res, next) {
+        web.auth.loginUtils.handleRole(pluginConf.accessRole, req, res, next);
+      }
+    }
+  } 
 
 
   self.routes[context] = function(req, res) {
@@ -34,8 +43,55 @@ module.exports = function WaterooCms(pluginConf, web, next) {
   web.applyRoutes(self.routes);
   web.dms.utils.initDocRoutes();
 
-  var WCM = require('./wcm/wcm.js');
-  self.wcm = new WCM(pluginConf, web);
+  // var WCM = require('./wcm/wcm.js');
+  // web.dms.wcm = new WCM(pluginConf, web);
+
+
+  web.on('initServer', function() {
+
+    if (!web.syspars) {
+      console.warn('wateroo cms needs oils-plugin-syspars plugin');
+      return;
+    }
+    web.syspars.get('DMS_RUN_ONCE', function(err, syspar) {
+      if (!syspar) {
+
+
+        if (web.auth) {
+        var User = web.auth.UserModel;
+
+
+        var saveAdminUser = function() {
+          var user = new User();
+            user.username = 'admin';
+            user.password = 'abcd1234';
+            user.role = 'ADMIN';
+            user.fullname = 'Admin';
+            user.nickname = 'Admin';
+            user.email = 'admin@example.com';
+            user.save();
+            console.log('Admin user saved.');
+        }
+
+        console.log('First time to run. Running DMS init data.');
+         //init-data
+        User.findOne({username:'admin'}, function(err, user) {
+          if (!user) {
+            saveAdminUser();
+          } else if (user.role != 'ADMIN') {
+            user.remove(function() {
+              saveAdminUser();
+            })
+          }
+          
+        });
+      }
+         
+        web.syspars.set('DMS_RUN_ONCE', 'Y')
+      }
+    });
+  });
+
 
   next();
 }

@@ -35,7 +35,7 @@ module.exports = {
     schema.index({parentFolderId: 1, lowerCaseName: 1}, {unique: true});
     //schema.index({voteCount: -1, meta.lastUpdateBy: -1});
     schema.pre('save', function(next) {
-      this.isFolder = (this.docType == web.constants.dms.folder);
+      this.isFolder = (this.docType == web.dms.constants.folder);
       this.lowerCaseName = this.name.toLowerCase();
       var self = this;
       web.dms.utils.getFolderPath(this, function(err, folderPath) {

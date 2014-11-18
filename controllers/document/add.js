@@ -49,7 +49,7 @@ module.exports = function(pluginConf, web) {
           //var docType = req.params['DOC_TYPE'];
           var doc = new Object();
 
-          doc.docType = req.query.docType || web.constants.dms.file;
+          doc.docType = req.query.docType || web.dms.contants.file;
           doc.route = doc.route || '';
           doc.controller = doc.controller || '';
           var modelEditables = getModelEditables(doc.docType);
@@ -101,7 +101,7 @@ module.exports = function(pluginConf, web) {
   var handleDocSave = function(req, res, doc, folder, updateMode) {
         var docType = req.body.docType;
         var name = req.body.name;
-        if (docType == web.constants.dms.folder) {
+        if (docType == web.dms.constants.folder) {
           doc.isFolder = true;
         }
         //var editables = app.dms.conf.oils.editables;
