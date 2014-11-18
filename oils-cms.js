@@ -20,15 +20,15 @@ module.exports = function WaterooCms(pluginConf, web, next) {
 
   web.dms.docTypes = [web.dms.constants.folder, web.dms.constants.file];
 
-  // if (web.auth && pluginConf.accessRole) {
+  if (web.auth && pluginConf.accessRole) {
     
-  //   self.routes['/\/' + context + '*/'] = {
-  //     isRegexp: true,
-  //     all: function(req, res, next) {
-  //       web.auth.loginUtils.handleRole(pluginConf.accessRole, req, res, next);
-  //     }
-  //   }
-  // } 
+    self.routes['/' + context + '*/'] = {
+      isRegexp: true,
+      all: function(req, res, next) {
+        web.auth.loginUtils.handleRole(pluginConf.accessRole, req, res, next);
+      }
+    }
+  } 
 
 
   self.routes[context] = function(req, res) {
