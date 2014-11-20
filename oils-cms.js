@@ -30,10 +30,16 @@ module.exports = function WaterooCms(pluginConf, web, next) {
     }
   } 
 
+  web.on('beforeRender', function(view, options) {
+    options._cmsParent = pluginConf.adminTemplate;
+  })
 
-  self.routes[context] = function(req, res) {
-    res.redirect(context + '/document/list');
-  }
+  // self.routes[context] = function(req, res) {
+  //   res.redirect(context + '/document/list');
+  // }
+
+  self.routes[context] = require('./controllers/admin/index.js')(pluginConf, web);
+
   self.routes[context + '/document/list'] = require('./controllers/document/list.js')(pluginConf, web);
   //self.routes[context + '/document/add/:DOC_TYPE'] = require('./controllers/document/add.js')(pkg, web);
   self.routes[context + '/document/add'] = require('./controllers/document/add.js')(pluginConf, web);
