@@ -1,9 +1,9 @@
 module.exports = function(pluginConf, web) {
-  var Document = web.includeModel(pluginConf.models.document);
+  var Document = web.includeModel(pluginConf.models.Document);
   var context = pluginConf.context;
   return {
     get: function(req, res) {
-      web.dms.utils.handleFolder(req.query.folderId, req, res, function(err, folder, folderId, parentFolders) {
+      web.cms.utils.handleFolder(req.query.folderId, req, res, function(err, folder, folderId, parentFolders) {
         var page = req.query.p || '1';
         var numberOfRecordsPerPage = pluginConf.numberOfRecordsPerPage;
 
@@ -16,7 +16,26 @@ module.exports = function(pluginConf, web) {
             documents = null;
           }
           folderId = folderId || '';
-          res.renderFile(pluginConf.views.list, {documents: documents, context: context, folderId: folderId, parentFolders: parentFolders});
+          var folderPath = '';
+          for (var i in parentFolders) {
+            folderPath = folderPath + '/' + parentFolders[i].name;
+          }
+          if (folderPath == '') {
+            folderPath = '/';
+          }
+
+          var options = {
+            documents: documents, 
+            context: context, 
+            folderId: 
+            folderId, 
+            parentFolders: parentFolders,
+            folderPath: folderPath,
+            defaultDocTypeForAddFile: null
+          };
+
+          web.callEvent('cms.beforeRenderList', [options, req, res])
+          res.renderFile(pluginConf.views.list, options);
         })
 
       })

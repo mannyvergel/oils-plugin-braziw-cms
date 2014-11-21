@@ -1,0 +1,73 @@
+
+div.file {
+  width: 14px;
+  height: 20px;
+  position: relative;
+  text-align: center;
+}
+
+div.file:after {
+  content: " ";
+  width: 100%;
+  height: 100%;
+  border-radius: 1px;
+
+  display: block;
+  border:1px solid #555;
+  background: #eee;
+  position: absolute;
+
+}
+
+div.folder {
+  width: 20px;
+  height: 14px;
+  position: relative;
+  text-align: center;
+}
+
+div.folder:after {
+  content: " ";
+  width: 100%;
+  height: 100%;
+  border-radius: 0 2px 2px 2px;
+  display: block;
+  background-color: #555;
+  position: absolute;
+  top: 25%;    
+}
+
+div.folder:before {
+  content: " ";
+  width: 40%;
+  height: 25%;
+  border-radius: 2px 8px 0 0;
+  display: block;
+  background-color: #555;
+  position: absolute;
+  
+}
+
+table.doc-list tr {
+  height: 30px;
+}
+
+table.doc-list td {
+}
+
+table.doc-list th {
+  text-align: left;
+  padding-right: 12px;
+}
+
+ul.navigation {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  margin-top: 12px;
+  height: 50px;
+}
+ul.navigation li {
+  float: left;
+  margin-right: 4px;
+}

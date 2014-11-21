@@ -2,7 +2,8 @@ var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
 module.exports = {
   name: 'Document',
-
+  label: 'File',
+  docType: 'file',
 
   schema: {
     docType: {type: String, required:true, default: 'file'},
@@ -13,7 +14,6 @@ module.exports = {
     name: {type: String, required: true},
     route: String,
     content: Buffer,
-    controller: String,
     
     meta: {
       lastUpdateDt: {type: Date, default: Date.now},
@@ -35,10 +35,10 @@ module.exports = {
     schema.index({parentFolderId: 1, lowerCaseName: 1}, {unique: true});
     //schema.index({voteCount: -1, meta.lastUpdateBy: -1});
     schema.pre('save', function(next) {
-      this.isFolder = (this.docType == web.dms.constants.folder);
+      this.isFolder = (this.docType == web.cms.constants.folder);
       this.lowerCaseName = this.name.toLowerCase();
       var self = this;
-      web.dms.utils.getFolderPath(this, function(err, folderPath) {
+      web.cms.utils.getFolderPath(this, function(err, folderPath) {
         if (err) {
           console.error('Get folder path ' + err);
         }
@@ -55,9 +55,6 @@ module.exports = {
   },
 
   editables: [{"name": "name", "type": "text", "label": "Name", "required": true},
-    {"name": "route", "type": "text", "label": "Route"},
-    {"name": "controller", "type": "text", "label": "Controller"},
     {"name": "content", "type": "file", "label": "Content"}
-    
     ]
 } 

@@ -5,17 +5,13 @@ module.exports = function(pluginConf) {
     "accessRole": "ADMIN",
     "adminTemplate": pluginPath + "/views/templates/admin-template.html",
     "models": {
-      "document": pluginPath + "/models/Document.js"
+      //"document": pluginPath + "/models/Document.js",
+      "Document": pluginPath + "/models/Document.js"
     },
     "views": {
       "list": pluginPath + "/views/document/list.html",
       "addDocument": pluginPath + "/views/document/add.html"
     },
-    "editables": [{"name": "name", "type": "text", "label": "Name", "required": true},
-    {"name": "route", "type": "text", "label": "Route"},
-    {"name": "content", "type": "file", "label": "Content"},
-    {"name": "controller", "type": "text", "label": "Controller"}
-    ],
     "numberOfRecordsPerPage" : 10
   }
 

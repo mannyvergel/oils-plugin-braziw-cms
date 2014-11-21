@@ -1,15 +1,18 @@
 module.exports = function(pluginConf, web) {
-  var Document = web.includeModel(pluginConf.models.document);
+
+  var Document = web.includeModel(pluginConf.models.Document);
   var context = pluginConf.context;
   var mongoose = require('mongoose');
-  var dmsUtils = web.dms.utils;
+  var dmsUtils = web.cms.utils;
   var getModelEditables = function(docType) {
     var modelEditables = null;
     if (docType && docType != 'file' && docType != 'folder') {
-      modelEditables = web.models(docType).getModelDictionary().editables;
+      modelEditables = web.cms.getCmsModel(docType).getModelDictionary().editables;
     } else {
-      modelEditables = web.models('Document').getModelDictionary().editables;
+      modelEditables = web.cms.getCmsModel('Document').getModelDictionary().editables;
     }
+
+    //console.log('!!!!' + docType + ' :::: ' + modelEditables);
     return modelEditables;
   }
 
@@ -20,14 +23,14 @@ module.exports = function(pluginConf, web) {
       dmsUtils.handleFolder(req.query.folderId, req, res, function(err, folder, folderId, parentFolders) {
         folderId = folderId || '';
 
-        
+        var docTypeMap = web.cms.getDocTypeMap();
         var fileId = req.params.FILE_ID;
         if (fileId) {
           fileId = dmsUtils.toObjectId(fileId);
           var docType = req.query.docType;
       
          if (docType && docType != 'file' && docType != 'folder') {
-           Document = web.models(docType);
+           Document = web.cms.getCmsModel(docType);
          }
           Document.findOne({_id:fileId}, function(err, doc) {
             
@@ -43,18 +46,18 @@ module.exports = function(pluginConf, web) {
             doc.route = doc.route || '';
             var modelEditables = getModelEditables(docType);
             res.renderFile(pluginConf.views.addDocument,
-            {context: context, folderId: folderId, isFolder: doc.isFolder, doc: doc, modelEditables: modelEditables});
+            {context: context, folderId: folderId, isFolder: doc.isFolder, doc: doc, modelEditables: modelEditables, docTypeMap: docTypeMap});
           })
         } else {
           //var docType = req.params['DOC_TYPE'];
           var doc = new Object();
 
-          doc.docType = req.query.docType || web.dms.contants.file;
+          doc.docType = req.query.docType || web.cms.constants.file;
           doc.route = doc.route || '';
           doc.controller = doc.controller || '';
           var modelEditables = getModelEditables(doc.docType);
           res.renderFile(pluginConf.views.addDocument, 
-          {context: context, folderId: folderId, isFolder: req.query.isFolder, doc: doc, customDocType: docType, modelEditables: modelEditables});
+          {context: context, folderId: folderId, isFolder: req.query.isFolder, doc: doc, customDocType: docType, modelEditables: modelEditables, docTypeMap: docTypeMap});
         }
         
 
@@ -70,7 +73,7 @@ module.exports = function(pluginConf, web) {
         var docType = req.body.docType;
       
          if (docType && docType != 'file' && docType != 'folder') {
-          Document = web.models(docType);
+          Document = web.cms.getCmsModel(docType);
          }
 
         if (req.body._id) {
@@ -101,10 +104,9 @@ module.exports = function(pluginConf, web) {
   var handleDocSave = function(req, res, doc, folder, updateMode) {
         var docType = req.body.docType;
         var name = req.body.name;
-        if (docType == web.dms.constants.folder) {
+        if (docType == web.cms.constants.folder) {
           doc.isFolder = true;
         }
-        //var editables = app.dms.conf.oils.editables;
 
         var editables = getModelEditables(docType);
         //console.log('!!!' + JSON.stringify(editables));
@@ -183,9 +185,9 @@ module.exports = function(pluginConf, web) {
             } else {
               req.flash('info', doc.name + ' saved successfully.');
               if (updateMode) {
-                web.callEvent('dms.afterDocumentUpdate', [doc]);
+                web.callEvent('cms.afterDocumentUpdate', [doc]);
               } else {
-                web.callEvent('dms.afterDocumentInsert', [doc]);
+                web.callEvent('cms.afterDocumentInsert', [doc]);
               }
               
             }

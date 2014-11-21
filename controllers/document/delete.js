@@ -1,8 +1,8 @@
 module.exports = function(pluginConf, web) {
-  var Document = web.includeModel(pluginConf.models.document);
+  var Document = web.includeModel(pluginConf.models.Document);
   var context = pluginConf.context;
   var mongoose = require('mongoose');
-  var dmsUtils = web.dms.utils;
+  var dmsUtils = web.cms.utils;
   var myRoutes = {
 
     all: function(req, res) {
@@ -13,7 +13,7 @@ module.exports = function(pluginConf, web) {
       		folderId = doc.parentFolderId.toString();
       	}
         if (doc) {
-        	web.dms.utils.deleteDoc(doc, function(err) {
+        	web.cms.utils.deleteDoc(doc, function(err) {
             if (err) throw err;
             req.flash('info', "Document deleted");
             res.redirect(context + '/document/list?folderId=' + folderId);

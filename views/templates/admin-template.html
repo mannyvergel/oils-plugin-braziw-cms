@@ -17,52 +17,81 @@
   <title>{% block title %}{% endblock %}</title>
   <link rel="stylesheet" href="/css/foundation.min.css" />
   <script src="/js/vendor/modernizr.min.js"></script>
-  <link rel="stylesheet" href="/css/main.css" />
-  
+  <link href='http://fonts.googleapis.com/css?family=Droid+Sans:400,700' rel='stylesheet' type='text/css' />
+
+  <link rel="stylesheet" href="/css/plugin/cms/admin.css" />
+
   
   {% block head %}
   {% endblock %}
 </head>
 <body>
+
 <header>
-  <div class="row">
-    <ul class="menu clearfix">
-      <li><a href="/">Home</a></li>
-    </ul>
+<div id="TOP_HEADER">
+  <div class="left padding" style="width: 40%">
+  Wateroo
   </div>
+
+  <div class="right padding" style="">
+     {%if _user %}
+
+     Welcome {{_user.nickname}} (<a href="/logout">Logout</a>)
+   
+      {%else%}
+      <a href="/login">Login</a>
+      {%endif%}
+  </div>
+</div>
 </header>
 
-<!-- End Header and Nav -->
-<div class="main-body">
-{% for err in _errors %}
-  <div class="row">
-     
-     <div data-alert class="alert-box warning radius">
-      {{err}}
-      <a href="#" class="close">&times;</a>
+
+  <div id="CONTAINER">
+    <div id="LEFT_PANEL">
+      <ul class="menu">
+
+
+        {%for cmsMenuBlock in _cms.adminMenu%}
+          {%if cmsMenuBlock.headerText%}
+        <li class="header">{{cmsMenuBlock.headerText}}</li>
+          {%endif%}
+          
+          {%for cmsMenuItem in cmsMenuBlock.items%}
+        <li>
+          <a href="{{cmsMenuItem.link|safe}}">{{cmsMenuItem.text}}</a>
+        </li>
+          {%endfor%}
+
+        <li class="separator"></li>
+        
+        {%endfor%}
+
+      </ul>
     </div>
-    
-  </div>
-{% endfor %}
+    <div id="RIGHT_PANEL">
+      <div class="main-body">
+      {% for err in _errors %}
+        <div class="row">
+           
+           <div data-alert class="alert-box warning radius">
+            {{err}}
+            <a href="#" class="close">&times;</a>
+          </div>
+          
+        </div>
+      {% endfor %}
 
-{% for info in _infos %}
-  <div class="row">
-     
-     <div data-alert class="alert-box success radius">
-      {{info}}
-      <a href="#" class="close">&times;</a>
-    </div>
-    
-  </div>
-{% endfor %}
+      {% for info in _infos %}
+        <div class="row">
+           
+           <div data-alert class="alert-box success radius">
+            {{info}}
+            <a href="#" class="close">&times;</a>
+          </div>
+          
+        </div>
+      {% endfor %}
 
-
-
-  <div class="row">
-    <div class="left-pane">
-      <a href="/admin/document/list">DMS</a>
-    </div>
-    <div class="right-pane">
       {% block content %}{% endblock %}
     </div>
   </div>
@@ -70,9 +99,8 @@
 
 
 <footer>
-   <div class="row">
-     <p>WCM Plugin is part of Wateroo CMS</p>
-   </div>
+     <p>&copy;JuanSolution Ltd.</p>
+
 </footer>
 
 <script src="/js/vendor/jquery.min.js"></script>

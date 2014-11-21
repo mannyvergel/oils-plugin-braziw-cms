@@ -4,7 +4,7 @@ module.exports = function(pluginConf, web) {
   var self = this;
 
   var mongoose = require('mongoose');
-  var Document = web.includeModel(pluginConf.models.document);
+  var Document = web.includeModel(pluginConf.models.Document);
 
 
 
@@ -262,6 +262,12 @@ module.exports = function(pluginConf, web) {
       optionalContent = null;
     }
 
+    if (optionalContent !== null && typeof optionalContent === 'string') {
+      var strValue = optionalContent;
+      optionalContent = new Object();
+      optionalContent.content = strValue;
+    }
+
     var parentDir = _path.dirname(path);
     self.mkdirs(parentDir, function(err, parentDoc) {
       if (err) throw err;
@@ -279,10 +285,12 @@ module.exports = function(pluginConf, web) {
             doc.parentFolderId = parentDoc._id;
           }
 
-          doc.docType = web.dms.constants.file;
+          doc.docType = web.cms.constants.file;
 
           if (optionalContent) {
-            doc.content = new Buffer(optionalContent, "utf8");
+            for (var i in optionalContent) {
+              doc[i] = new Buffer(optionalContent[i], "utf8");  
+            }
           }
 
           doc.save(function(err) {
@@ -325,7 +333,7 @@ module.exports = function(pluginConf, web) {
         doc.name = folderName;
         
         doc.parentFolderId = parentFolderId;
-        doc.docType = web.dms.constants.folder;
+        doc.docType = web.cms.constants.folder;
         doc.save(function(err) {
           if (err) {
             console.error(err);
