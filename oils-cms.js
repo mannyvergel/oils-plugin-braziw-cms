@@ -6,6 +6,7 @@ module.exports = function WaterooCms(pluginConf, web, next) {
   web.dms = self;
   pluginConf = web.utils.extend(require('./conf.js')(pluginConf), pluginConf);
 
+
   var context = pluginConf.context;
   
   self.routes = {
@@ -31,6 +32,7 @@ module.exports = function WaterooCms(pluginConf, web, next) {
   } 
 
   web.on('beforeRender', function(view, options) {
+
     options._cmsParent = pluginConf.adminTemplate;
   })
 

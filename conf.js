@@ -3,7 +3,7 @@ module.exports = function(pluginConf) {
   return {
     "context": "/admin",
     "accessRole": "ADMIN",
-    "adminTemplate": "templates/main.html",
+    "adminTemplate": pluginPath + "/views/templates/admin-template.html",
     "models": {
       "document": pluginPath + "/models/Document.js"
     },
