@@ -30,7 +30,7 @@
   "devDependencies": {},
   "bundleDependencies": [],
 
-  "private": true,
+  "private": false,
   "main": "oils-cms.js"
   
 }
