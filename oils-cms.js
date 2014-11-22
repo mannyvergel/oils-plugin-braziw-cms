@@ -62,12 +62,12 @@ module.exports = function WaterooCms(pluginConf, web, next) {
   }
 
   if (pluginConf.defaultMenu) {
-    web.cms.adminMenu.push(pluginConf.defaultMenu);
+    web.cms.adminMenu = pluginConf.defaultMenu;
   } else {
-    web.cms.adminMenu.push(
+    web.cms.adminMenu = [
       {items:[{text:'Dashboard', link:context}]},
       {items:[{text:'DMS', link:context + '/document/list'}]}
-    );
+    ];
   }
 
   if (web.auth && pluginConf.accessRole) {

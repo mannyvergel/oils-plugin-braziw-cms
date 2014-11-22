@@ -1,6 +1,6 @@
 {
   "name": "oils-plugin-wateroo-cms",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Content management system plugin for oils js",
   "keywords": [
     "cms",
