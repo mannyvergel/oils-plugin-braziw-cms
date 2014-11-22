@@ -3,10 +3,10 @@
   "version": "1.0.0",
   "description": "Content management system plugin for oils js",
   "keywords": [
-  	"oils",
-    "passport",
-    "authentication",
-    "authorization"
+    "cms",
+    "wateroo",
+    "oils",
+    "content management system"
   ],
   "author": {
     "name": "Manny Vergel",
