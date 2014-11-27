@@ -181,8 +181,18 @@ module.exports = function(pluginConf, web) {
     })
   }
 
-  self.checkExistence = function(name, parentDocId, callback) {
-    Document.findOne({parentFolderId: parentDocId, lowerCaseName: name.toLowerCase()}, function(err, doc) {
+  self.checkExistence = function(name, parentDocId, optionalDocType, callback) {
+    if (arguments.length < 4) {
+      callback = optionalDocType;
+      optionalDocType = null;
+    }
+    var SpecificObject = null;
+    if (optionalDocType) {
+      SpecificObject = web.cms.getCmsModel(optionalDocType);
+    } else {
+      SpecificObject = Document;
+    }
+    SpecificObject.findOne({parentFolderId: parentDocId, lowerCaseName: name.toLowerCase()}, function(err, doc) {
       callback(err, doc);
     })
   };
@@ -274,11 +284,23 @@ module.exports = function(pluginConf, web) {
 
       var basename = _path.basename(path);
       var parentDocId = parentDoc ? parentDoc._id : null
-      self.checkExistence(basename, parentDoc, function(err, doc) {
+
+      var myDocType = null;
+      if (optionalContent && optionalContent.docType) {
+        myDocType = optionalContent.docType;
+      }
+
+      self.checkExistence(basename, parentDoc, myDocType, function(err, doc) {
         if (err) throw err;
 
         if (!doc) {
-          doc = new Document();
+          if (myDocType) {
+            var SpecificObject = web.cms.getCmsModel(myDocType);
+            doc = new SpecificObject();
+          } else {
+            doc = new Document();
+          }
+          
       
           doc.name = basename;
           if (parentDoc) {
@@ -353,7 +375,9 @@ module.exports = function(pluginConf, web) {
     if (index < arrFolders.length) {
       _mkdirs(arrFolders, callback, index, doc._id);
     } else {
-      callback(null, doc);
+      if (callback) {
+        callback(null, doc);
+      }
     }
   }
 }
