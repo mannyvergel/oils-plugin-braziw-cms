@@ -71,25 +71,24 @@
     <div id="RIGHT_PANEL">
       <div class="main-body">
       {% for err in _errors %}
-        <div class="row">
+       
            
            <div data-alert class="alert-box warning radius">
             {{err}}
             <a href="#" class="close">&times;</a>
           </div>
           
-        </div>
+   
       {% endfor %}
 
       {% for info in _infos %}
-        <div class="row">
+  
            
            <div data-alert class="alert-box success radius">
             {{info}}
             <a href="#" class="close">&times;</a>
           </div>
-          
-        </div>
+       
       {% endfor %}
 
       {% block content %}{% endblock %}
