@@ -1,6 +1,6 @@
-oils-plugin-wateroo-cms
+oils-plugin-braziw-cms
 ========
 
-Wateroo is a simple Content Management System (CMS) plugin for Oils JS Framework.
+Braziw is a Content Management System (CMS) plugin for Oils JS Framework.
 
 

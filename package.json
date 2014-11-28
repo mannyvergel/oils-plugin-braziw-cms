@@ -1,11 +1,12 @@
 {
-  "name": "oils-plugin-wateroo-cms",
-  "version": "1.0.2",
+  "name": "oils-plugin-braziw-cms",
+  "version": "1.0.3",
   "description": "Content management system plugin for oils js",
   "keywords": [
     "cms",
-    "wateroo",
+    "braziw",
     "oils",
+    "wateroo",
     "content management system"
   ],
   "author": {
@@ -13,10 +14,10 @@
     "email": "manny@mvergel.com",
     "url": "http://www.mvergel.com/"
   },
-  "homepage": "http://www.github.com/mannyvergel/oils-plugin-wateroo-cms",
+  "homepage": "http://www.github.com/mannyvergel/oils-plugin-braziw-cms",
   "repository": {
     "type": "git",
-    "url": "https://www.github.com/mannyvergel/oils-plugin-wateroo-cms.git"
+    "url": "https://www.github.com/mannyvergel/oils-plugin-braziw-cms.git"
   },
 
   "engines": {
