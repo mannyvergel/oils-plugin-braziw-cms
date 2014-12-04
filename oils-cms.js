@@ -72,7 +72,7 @@ module.exports = function WaterooCms(pluginConf, web, next) {
 
   if (web.auth && pluginConf.accessRole) {
     
-    self.routes['/' + context + '*/'] = {
+    self.routes['/^' + context + '*/'] = {
       isRegexp: true,
       all: function(req, res, next) {
         web.auth.loginUtils.handleRole(pluginConf.accessRole, req, res, next);

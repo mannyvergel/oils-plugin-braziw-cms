@@ -1,13 +1,15 @@
 {
   "name": "oils-plugin-braziw-cms",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "Content management system plugin for oils js",
   "keywords": [
     "cms",
     "braziw",
     "oils",
     "wateroo",
-    "content management system"
+    "content management system",
+    "wcm",
+    "dms"
   ],
   "author": {
     "name": "Manny Vergel",
