@@ -1,6 +1,6 @@
 
   body {
-    color: #3333;
+    color: #333;
     font-family: 'Droid Sans', sans-serif;
   }
 
@@ -127,4 +127,46 @@
     line-height: inherit;
     padding-top: 0;
   }
+
+.top-title {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+@media only screen and (max-width: 550px) {
+  #CONTAINER {
+    margin-top: 12px;
+  }
+  #LEFT_PANEL {
+    position: relative;
+    min-height: 30px;
+    width: 100%;
+    margin-bottom: 17px;
+  }
+
+   #LEFT_PANEL .menu li {
+    float: left;
+        font-size: 12px;
+   }
+
+   #LEFT_PANEL .menu {
+    background-color: white;
+   }
+
+   #LEFT_PANEL .menu li.header {
+    display: none;
+   }
+
+   #LEFT_PANEL .menu li.separator {
+    display: none;
+   }
+
+  #RIGHT_PANEL {
+    margin-left: 20px;
+    clear: both;
+  }
+
+
+}
   
