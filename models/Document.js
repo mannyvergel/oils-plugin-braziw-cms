@@ -1,4 +1,4 @@
-var mongoose = require('mongoose');
+var mongoose = web.lib.mongoose;
 var Schema = mongoose.Schema;
 module.exports = {
   name: 'Document',

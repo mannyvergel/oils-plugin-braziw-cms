@@ -3,7 +3,7 @@ var async = require('async');
 module.exports = function(pluginConf, web) {
   var self = this;
 
-  var mongoose = require('mongoose');
+  var mongoose = web.lib.mongoose;
   var Document = web.includeModel(pluginConf.models.Document);
 
 
@@ -170,12 +170,15 @@ module.exports = function(pluginConf, web) {
 
       if (!doc) {
         console.warn('Delete path do not exist ' + path);
-        callback();
+        if (callback) {
+          callback();
+        }
       } else {
         self.deleteDoc(doc, function(err) {
           if (err) throw err;
-
-          callback();
+          if (callback) {
+            callback();
+          }
         })
       }
     })
@@ -218,9 +221,9 @@ module.exports = function(pluginConf, web) {
       return;
     }
 
-    if (console.isDebug) {
-      console.debug('Retrieve doc from array: ' + arrPaths);
-    }
+    // if (console.isDebug) {
+    //   console.debug('Retrieve doc from array: ' + arrPaths);
+    // }
     var firstFile = arrPaths[0];
 
     arrPaths.shift();

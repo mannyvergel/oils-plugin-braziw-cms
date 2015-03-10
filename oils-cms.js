@@ -1,6 +1,5 @@
-
-
 module.exports = function WaterooCms(pluginConf, web, next) {
+  var pjson = web.include('/package.json');
   var self = this;
 
   web.cms = self;
@@ -72,7 +71,7 @@ module.exports = function WaterooCms(pluginConf, web, next) {
 
   if (web.auth && pluginConf.accessRole) {
     
-    self.routes['/^' + context + '*/'] = {
+    self.routes['/' + context + '*/'] = {
       isRegexp: true,
       all: function(req, res, next) {
         web.auth.loginUtils.handleRole(pluginConf.accessRole, req, res, next);
@@ -81,6 +80,7 @@ module.exports = function WaterooCms(pluginConf, web, next) {
   } 
 
   web.on('beforeRender', function(view, options) {
+    options = options || {};
     options._cms = web.cms;
   })
 
@@ -95,6 +95,8 @@ module.exports = function WaterooCms(pluginConf, web, next) {
   self.routes[context + '/document/add'] = require('./controllers/document/add.js')(pluginConf, web);
   self.routes[context + '/document/edit/:FILE_ID'] = require('./controllers/document/add.js')(pluginConf, web);
   self.routes[context + '/document/delete/:DOC_ID'] = require('./controllers/document/delete.js')(pluginConf, web);
+
+  self.routes[context + '/site-settings'] = require('./controllers/admin/site-settings.js')(pluginConf, web);
 
   self.routes['/css/plugin/cms/admin.css'] = {
     get: function(req, res) {
@@ -113,47 +115,100 @@ module.exports = function WaterooCms(pluginConf, web, next) {
   // var WCM = require('./wcm/wcm.js');
   // web.cms.wcm = new WCM(pluginConf, web);
 
+  var SiteSetting = web.cms.getCmsModel('SiteSetting');
 
+  var updateSiteSettingCache = function(options) {
+    SiteSetting.findOne({docType:'SiteSetting'}).lean().exec(function(err,siteSetting) {
+      web.cms.siteSettingCache = web.cms.siteSettingCache || {
+        title: pluginConf.defaultSiteTitle,
+        currency: 'P'
+      }
+
+      if (siteSetting) {
+        web.cms.siteSettingCache = siteSetting;
+        if (options) {
+          options['_site']  = web.cms.siteSetting;
+        }
+
+        if (console.isDebug) {
+          console.debug('Site setting cache updated: ' + JSON.stringify(siteSetting));
+        }
+        
+      }
+      
+    });
+  }
+  web.cms.updateSiteSettingCache = updateSiteSettingCache;
+  updateSiteSettingCache();
+
+  web.on('beforeRender', function(view, options) {
+    
+    
+    options = options || {};
+    var site = web.cms.siteSettingCache;
+    site.version = pjson.version;
+    options['_site'] = site;
+
+  })
   web.on('initServer', function() {
 
     if (!web.syspars) {
       console.warn('wateroo cms needs oils-plugin-syspars plugin');
     } else {
-      web.syspars.get('DMS_RUN_ONCE', function(err, syspar) {
+      web.syspars.get('CMS_RUN_ONCE', function(err, syspar) {
         if (!syspar) {
 
 
           if (web.auth) {
-          var User = web.auth.UserModel;
+            var User = web.auth.UserModel;
 
 
-          var saveAdminUser = function() {
-            var user = new User();
-              user.username = 'admin';
-              user.password = 'abcd1234';
-              user.role = 'ADMIN';
-              user.fullname = 'Admin';
-              user.nickname = 'Admin';
-              user.email = 'admin@example.com';
-              user.save();
-              console.log('Admin user saved.');
+            var saveAdminUser = function() {
+              var user = new User();
+                user.username = 'admin';
+                user.password = 'abcd1234';
+                user.birthday= new Date();
+                user.lastname ='John';
+                user.firstname = 'Doe';
+                user.middlename = 'Admin';
+                user.role = 'ADMIN';
+                user.fullname = 'Admin';
+                user.nickname = 'Admin';
+                user.email = 'admin@example.com';
+                user.save(function(err) {
+                  if (err) throw err;
+                });
+                console.log('Admin user saved.');
+            }
+
+            console.log('First time to run. Running DMS init data.');
+             //init-data
+            User.findOne({username:'admin'}, function(err, user) {
+              if (!user) {
+                saveAdminUser();
+              } else if (user.role != 'ADMIN') {
+                user.remove(function() {
+                  saveAdminUser();
+                })
+              }
+              
+            });
           }
 
-          console.log('First time to run. Running DMS init data.');
-           //init-data
-          User.findOne({username:'admin'}, function(err, user) {
-            if (!user) {
-              saveAdminUser();
-            } else if (user.role != 'ADMIN') {
-              user.remove(function() {
-                saveAdminUser();
+          SiteSetting.findOne({docType:'SiteSetting'}, function(err, siteSetting) {
+            if (!siteSetting) {
+              siteSetting = new SiteSetting();
+              siteSetting.title = pluginConf.defaultSiteTitle;
+              siteSetting.currency = 'P';
+              siteSetting.save(function(err) {
+                if (err) throw err;
+                  web.cms.updateSiteSettingCache();
               })
             }
-            
-          });
-        }
+          })
+
            
-          web.syspars.set('DMS_RUN_ONCE', 'Y')
+          web.syspars.set('CMS_RUN_ONCE', 'Y');
         }
       });
     }

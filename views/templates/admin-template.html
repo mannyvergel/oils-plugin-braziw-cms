@@ -30,7 +30,7 @@
 <header>
 <div id="TOP_HEADER">
   <div class="left padding" style="width: 40%">
-  Braziw CMS
+  Wateroo
   </div>
 
   <div class="right padding" style="">
@@ -71,24 +71,25 @@
     <div id="RIGHT_PANEL">
       <div class="main-body">
       {% for err in _errors %}
-       
+        <div class="row">
            
            <div data-alert class="alert-box warning radius">
             {{err}}
             <a href="#" class="close">&times;</a>
           </div>
           
-   
+        </div>
       {% endfor %}
 
       {% for info in _infos %}
-  
+        <div class="row">
            
            <div data-alert class="alert-box success radius">
             {{info}}
             <a href="#" class="close">&times;</a>
           </div>
-       
+          
+        </div>
       {% endfor %}
 
       {% block content %}{% endblock %}

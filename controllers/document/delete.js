@@ -1,7 +1,7 @@
 module.exports = function(pluginConf, web) {
   var Document = web.includeModel(pluginConf.models.Document);
   var context = pluginConf.context;
-  var mongoose = require('mongoose');
+  var mongoose = web.lib.mongoose;
   var dmsUtils = web.cms.utils;
   var myRoutes = {
 
