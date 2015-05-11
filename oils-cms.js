@@ -71,7 +71,7 @@ module.exports = function WaterooCms(pluginConf, web, next) {
 
   if (web.auth && pluginConf.accessRole) {
     
-    self.routes['/' + context + '*/'] = {
+    self.routes['/^' + context + '*/'] = {
       isRegexp: true,
       all: function(req, res, next) {
         web.auth.loginUtils.handleRole(pluginConf.accessRole, req, res, next);
@@ -88,7 +88,9 @@ module.exports = function WaterooCms(pluginConf, web, next) {
   //   res.redirect(context + '/document/list');
   // }
 
-  self.routes[context] = require('./controllers/admin/dashboard.js')(pluginConf, web);
+  self.routes[context] = web.include(pluginConf.contextController);
+
+  self.routes[context + '/dashboard'] = require('./controllers/admin/dashboard.js')(pluginConf, web);
 
   self.routes[context + '/document/list'] = require('./controllers/document/list.js')(pluginConf, web);
   //self.routes[context + '/document/add/:DOC_TYPE'] = require('./controllers/document/add.js')(pkg, web);

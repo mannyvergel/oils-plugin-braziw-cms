@@ -14,7 +14,8 @@ module.exports = function(pluginConf) {
       "addDocument": pluginPath + "/views/document/add.html"
     },
     "defaultSiteTitle": "Braziw CMS",
-    "numberOfRecordsPerPage" : 10
+    "numberOfRecordsPerPage" : 10,
+    "contextController": pluginPath + "/controllers/admin.js"
   }
 
 }
