@@ -15,11 +15,11 @@
   <link rel="apple-touch-icon" sizes="114x114" href="/images/apple-touch-icon-retina.png" />
 
   <title>{% block title %}{% endblock %}</title>
-  <link rel="stylesheet" href="/css/foundation.min.css" />
+  <link rel="stylesheet" href="/css/vendor/foundation.min.css" />
   <script src="/js/vendor/modernizr.min.js"></script>
-  <link href='http://fonts.googleapis.com/css?family=Droid+Sans:400,700' rel='stylesheet' type='text/css' />
 
-  <link rel="stylesheet" href="/css/plugin/cms/admin.css" />
+  <link rel="stylesheet" href="/css/plugin/cms/admin.css?v={{_site.version}}" />
+  <link rel="stylesheet" href="/pub/css/admin.css?v={{_site.version}}" />
 
   
   {% block head %}
@@ -29,14 +29,14 @@
 
 <header>
 <div id="TOP_HEADER">
-  <div class="left padding" style="width: 40%">
-  Wateroo
+  <div class="top-title left padding">
+  {{_site.title}}
   </div>
 
   <div class="right padding" style="">
      {%if _user %}
 
-     Welcome {{_user.nickname}} (<a href="/logout">Logout</a>)
+     Welcome {{_user.firstname}} (<a href="/logout">Logout</a>)
    
       {%else%}
       <a href="/login">Login</a>
@@ -52,17 +52,23 @@
 
 
         {%for cmsMenuBlock in _cms.adminMenu%}
-          {%if cmsMenuBlock.headerText%}
-        <li class="header">{{cmsMenuBlock.headerText}}</li>
-          {%endif%}
-          
-          {%for cmsMenuItem in cmsMenuBlock.items%}
-        <li>
-          <a href="{{cmsMenuItem.link|safe}}">{{cmsMenuItem.text}}</a>
-        </li>
-          {%endfor%}
 
-        <li class="separator"></li>
+          {%if not cmsMenuBlock.permissions or cmsMenuBlock.permissions.indexOf(_user.role) != -1%}
+            {%if cmsMenuBlock.headerText%}
+          <li class="header">{{cmsMenuBlock.headerText}}</li>
+            {%endif%}
+            
+            {%for cmsMenuItem in cmsMenuBlock.items%}
+                {%if not cmsMenuItem.permissions or cmsMenuItem.permissions.indexOf(_user.role) != -1%}
+              <li>
+                <a href="{{cmsMenuItem.link|safe}}">{{cmsMenuItem.text}}</a>
+              </li>
+              {%endif%}
+            {%endfor%}
+
+          <li class="separator"></li>
+
+        {%endif%}
         
         {%endfor%}
 
@@ -71,7 +77,7 @@
     <div id="RIGHT_PANEL">
       <div class="main-body">
       {% for err in _errors %}
-        <div class="row">
+        <div class="">
            
            <div data-alert class="alert-box warning radius">
             {{err}}
@@ -82,7 +88,7 @@
       {% endfor %}
 
       {% for info in _infos %}
-        <div class="row">
+        <div class="">
            
            <div data-alert class="alert-box success radius">
             {{info}}
@@ -99,22 +105,14 @@
 
 
 <footer>
-     <p>&copy;JuanSolution Ltd.</p>
+     <p>&copy;{{_site.title}}</p>
 
 </footer>
 
 <script src="/js/vendor/jquery.min.js"></script>
-<script src="/js/foundation.min.js"></script>
+<script src="/js/vendor/foundation.min.js"></script>
 <script>
   $(document).foundation();
-</script>
-
-<script src="/js/vendor/jquery.min.js"></script>
-<script src="/js/foundation.min.js"></script>
-<script>
-  $(document).foundation();
-
-  
 </script>
 
 {% block beforeEndBody %}{% endblock %}

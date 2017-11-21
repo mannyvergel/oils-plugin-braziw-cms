@@ -31,7 +31,6 @@
 
   #TOP_HEADER .right {
     float: right; 
-    width: 60%; 
     text-align: right;
     font-size: 12px;
   }
@@ -72,7 +71,7 @@
   #LEFT_PANEL {
     width: 200px;
     padding: 0 17px;
-    position: absolute;
+    float: left;
     height: 100%;
   }
 
@@ -107,10 +106,10 @@
   }
 
   #RIGHT_PANEL {
-    margin-left: 200px;
-    position: relative;
+    width: auto;
     padding-right: 17px;
     min-height: 400px;
+    overflow-x: hidden;
   }
 
   #RIGHT_PANEL p {

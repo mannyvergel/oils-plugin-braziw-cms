@@ -9,10 +9,12 @@ module.exports = {
     docType: {type: String, required:true, default: 'file'},
     
     parentFolderId: {type: Schema.ObjectId, index: true},
-    folderPath: {type: String, index: true},
+    folderPath: {type: String, index: true}, //automatically assigned
     
     name: {type: String, required: true},
-    route: String,
+    route: String, // not sure what this is, seems not used.
+    mimeType: String, //optional for now, maybe make it required in the future
+    fileSize: Number, //optional for now, maybe make it required in the future
     content: Buffer,
     
     meta: {
@@ -23,8 +25,8 @@ module.exports = {
     },
 
     //auto fields
-    isFolder: {type: Boolean}, //need to store for sorting, type == 'Folder'
-    lowerCaseName: {type: String, lowercase: true},
+    isFolder: {type: Boolean}, //need to store for sorting, type == 'Folder' , automatically assigned out of docType
+    lowerCaseName: {type: String, lowercase: true},  //automatically assigned
   },
 
   options: {

@@ -5,6 +5,7 @@
 {% block head %}
 
   <link rel="stylesheet" href="/css/plugin/cms/dms.css" />
+
 {% endblock %}
 
 {% block content %}
@@ -13,67 +14,151 @@
 
 <a class="tiny button" href="{{context|safe}}/document/add?isFolder=y&folderId={{folderId}}">New Folder</a>
 
-<ul class="navigation">
-  {%if parentFolders%}
-  <li><a href="{{context|safe}}/document/list">Root</a></li>
-  {%for parentFolder in parentFolders%}
-  <li>/ 
-    {%if loop.last%}
-    {{parentFolder.name}}
-    {%else%}
-    <a href="{{context|safe}}/document/list?folderId={{parentFolder._id.toString()}}">{{parentFolder.name}}</a>
-    {%endif%}
+<div id="DROP_ZONE" >
+  <ul class="navigation">
+    {%if parentFolders%}
+    <li><a href="{{context|safe}}/document/list">Root</a></li>
+    {%for parentFolder in parentFolders%}
+    <li>/ 
+      {%if loop.last%}
+      {{parentFolder.name}}
+      {%else%}
+      <a href="{{context|safe}}/document/list?folderId={{parentFolder._id.toString()}}">{{parentFolder.name}}</a>
+      {%endif%}
 
-  </li>
-  {%endfor%}
-  {%else%}
-  <li>Root</li>
-  {%endif%}
-</ul>
-
-
-<table class="doc-list">
-  <thead>
-    <tr>
-      <th>Edit</th>
-      <th colspan="2">
-        Name
-      </th>
-    </tr>
-  </thead>
-  <tbody>
-    {%if documents %}
-    {%for document in documents %}
-    <tr>
-      <td><a href="{{context|safe}}/document/edit/{{document._id.toString()}}?docType={{document.docType}}">Edit</a></td>
-      <td>
-        {%if document.isFolder%}
-        <div class="folder"></div>
-        {%else%}
-        <div class="file"></div>
-        {%endif%}
-      </td>
-      <td>
-        {%if document.isFolder%}
-        <a href="?folderId={{document._id.toString()}}">{{document.name}}</a>
-        {%else%}
-        {{document.name}}
-        {%endif%}
-
-
-      </td>
-    </tr>
+    </li>
     {%endfor%}
-
     {%else%}
-    <tr>
-      <td colspan="3">
-        No documents found.
-      </td>
-    </tr>
+    <li>Root</li>
     {%endif%}
-  </tbody>
-</table>
+  </ul>
+
+
+  <table class="doc-list">
+    <thead>
+      <tr>
+        <th>Edit</th>
+        <th colspan="2">
+          Name
+        </th>
+      </tr>
+    </thead>
+    <tbody>
+      {%if documents %}
+      {%for document in documents %}
+      <tr>
+        <td><a href="{{context|safe}}/document/edit/{{document._id.toString()}}?docType={{document.docType}}">Edit</a></td>
+        <td>
+          {%if document.isFolder%}
+          <div class="folder"></div>
+          {%else%}
+          <div class="file"></div>
+          {%endif%}
+        </td>
+        <td>
+          {%if document.isFolder%}
+          <a href="?folderId={{document._id.toString()}}">{{document.name}}</a>
+          {%else%}
+          {{document.name}}
+          {%endif%}
+
+
+        </td>
+      </tr>
+      {%endfor%}
+
+      {%else%}
+      <tr>
+        <td colspan="3">
+          No documents found.
+        </td>
+      </tr>
+      {%endif%}
+    </tbody>
+  </table>
+
+</div>
 
 {% endblock %}
 
+{%block beforeEndBody%}
+<script>
+  (function() {
+    var oDrop = document.getElementById('DROP_ZONE');
+
+    function uploadFile(file){
+        var url = '/admin/document/upload?_csrf={{_csrf}}';
+        var xhr = new XMLHttpRequest();
+        var fd = new FormData();
+        xhr.open("POST", url, true);
+        // xhr.onreadystatechange = function() {
+        //     if (xhr.readyState == 4 && xhr.status == 200) {
+        //         // Every thing ok, file uploaded
+        //         console.log(xhr.responseText); // handle response.
+        //     }
+        // };
+        // fd.append("upload_file", file);
+        // xhr.send(fd);
+
+        var formData = new FormData();
+        formData.append('docId', "{{folderId}}");
+        // formData.append('param2', 12345); 
+        // formData.append('uploadDir', 'public-data');  
+        formData.append('myfile', file);
+
+        xhr.send(formData);
+    }
+
+    var onDrop = function(ev) {
+      ev.preventDefault();
+      
+      // If dropped items aren't files, reject them
+      var dt = ev.dataTransfer;
+      var files = [];
+      if (dt.items) {
+        // Use DataTransferItemList interface to access the file(s)
+        for (var i=0; i < dt.items.length; i++) {
+          if (dt.items[i].kind == "file") {
+            var f = dt.items[i].getAsFile();
+            files.push(f);
+          }
+        }
+      } else {
+        // Use DataTransfer interface to access the file(s)
+        for (var i=0; i < dt.files.length; i++) {
+          files.push(t.files[i]);
+        }  
+      }
+
+      for (var i=0; i<files.length; i++) {
+        var f = files[i];
+        console.log("... file[" + i + "].name = " + f.name);
+        uploadFile(f);
+      }
+
+
+      this.style.background = '';
+    }
+    oDrop.addEventListener('drop',onDrop);
+
+    oDrop.addEventListener('dragdrop', onDrop);
+
+    
+    oDrop.addEventListener('dragenter',function(ev){
+      ev.preventDefault();
+      this.style.background = 'blue';
+    })
+    oDrop.addEventListener('dragleave',function(){
+        
+    })
+    oDrop.addEventListener('dragover',function(ev){
+      ev.preventDefault();
+    })
+
+    // oDrop.addEventListener('dragend',function(ev){
+    //   this.style.background = '';
+    // })
+  })();
+  
+  </script>
+{%endblock%}

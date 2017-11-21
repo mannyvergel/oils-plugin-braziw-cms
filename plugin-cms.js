@@ -1,4 +1,4 @@
-module.exports = function WaterooCms(pluginConf, web, next) {
+module.exports = function(pluginConf, web, next) {
   var pjson = web.include('/package.json');
   var self = this;
 
@@ -8,7 +8,7 @@ module.exports = function WaterooCms(pluginConf, web, next) {
 
   web.cms.adminMenu = [];
 
-  pluginConf = web.utils.extend(require('./conf.js')(pluginConf), pluginConf);
+  pluginConf = web.utils.extend(require('./conf/conf.js')(pluginConf), pluginConf);
   web.cms.conf = pluginConf;
   var context = pluginConf.context;
   
@@ -100,6 +100,8 @@ module.exports = function WaterooCms(pluginConf, web, next) {
 
   self.routes[context + '/site-settings'] = require('./controllers/admin/site-settings.js')(pluginConf, web);
 
+  self.routes[context + '/document/upload'] = require('./controllers/document/upload.js');
+
   self.routes['/css/plugin/cms/admin.css'] = {
     get: function(req, res) {
       web.utils.serveStaticFile(pluginConf.pluginPath + '/views/templates/admin.css', res);
@@ -155,7 +157,7 @@ module.exports = function WaterooCms(pluginConf, web, next) {
   web.on('initServer', function() {
 
     if (!web.syspars) {
-      console.warn('wateroo cms needs oils-plugin-syspars plugin');
+      console.warn('CMS needs oils-plugin-syspars plugin');
     } else {
       web.syspars.get('CMS_RUN_ONCE', function(err, syspar) {
         if (!syspar) {
