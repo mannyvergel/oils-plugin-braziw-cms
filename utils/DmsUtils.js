@@ -244,7 +244,8 @@ module.exports = function(pluginConf, web) {
   }
 
   self.getFolderPath = function(doc, cb, parentFolders) {
-    if (doc.folderPath) {
+    if (doc.folderPath && !parentFolders) {
+      //console.log('Hello!!', doc.folderPath);
       cb(null, doc.folderPath);
       return;
     }

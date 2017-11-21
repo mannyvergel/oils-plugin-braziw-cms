@@ -11,35 +11,45 @@ sync(fs, 'readFile');
 module.exports = {
 	post: [upload.any(), function(req, res) {
     sync.fiber(function() {
-      var arrFiles = req.files;
-      var parentFolderId = req.body.docId;
+      try {
+        var arrFiles = req.files;
+        var parentFolderId = req.body.docId;
 
-      if (arrFiles) {
-        for (var i=0; i<arrFiles.length; i++) {
-          var f = arrFiles[i];
-          var doc = new Document();
-          doc.content = fs.readFile(f.path);
-          doc.parentFolderId = parentFolderId;
+        if (arrFiles) {
+          for (var i=0; i<arrFiles.length; i++) {
+            var f = arrFiles[i];
+            var doc = new Document();
+            doc.content = fs.readFile(f.path);
+            doc.parentFolderId = parentFolderId;
 
-          doc.meta = {
-            lastUpdateBy: req.user._id.toString(),
-            createBy: req.user._id.toString()
+            doc.meta = {
+              lastUpdateBy: req.user._id.toString(),
+              createBy: req.user._id.toString()
+            }
+            doc.isFolder = false,
+            doc.docType = 'file';
+            doc.name = f.originalname;
+            doc.mimeType = f.mimetype;
+            doc.fileSize = f.size;
+
+            sync.await(doc.save(sync.defer()));
+
+            if (web.conf.isDebug) {
+              console.debug('Uploaded', doc.folderPath, doc.name);
+            }
+
+            fs.unlink(f.path);
+            //TODO: mime type!!!
+            //console.log('!!!!', arrFiles[i]);
           }
-          doc.isFolder = false,
-          doc.docType = 'file';
-          doc.name = f.originalname;
-          doc.mimeType = f.mimetype;
-          doc.fileSize = f.size;
-
-          sync.await(doc.save(sync.defer()));
-
-          fs.unlink(f.path);
-          //TODO: mime type!!!
-          //console.log('!!!!', arrFiles[i]);
         }
+        res.json({"status": 200});
+      } catch (ex) {
+        console.error(ex);
+        res.status(400),json({status: 400, error: ex.message})
       }
 
-      res.end("Upload ok");
+      
     })
 		
 	}]

@@ -101,16 +101,23 @@ module.exports = function(pluginConf, web, next) {
   self.routes[context + '/site-settings'] = require('./controllers/admin/site-settings.js')(pluginConf, web);
 
   self.routes[context + '/document/upload'] = require('./controllers/document/upload.js');
+  self.routes[context + '/document/download'] = require('./controllers/document/download.js');
 
   self.routes['/css/plugin/cms/admin.css'] = {
     get: function(req, res) {
-      web.utils.serveStaticFile(pluginConf.pluginPath + '/views/templates/admin.css', res);
+      web.utils.serveStaticFile(pluginConf.pluginPath + '/static/admin.css', res);
     }
   }
 
   self.routes['/css/plugin/cms/dms.css'] = {
     get: function(req, res) {
-      web.utils.serveStaticFile(pluginConf.pluginPath + '/views/templates/dms.css', res);
+      web.utils.serveStaticFile(pluginConf.pluginPath + '/static/dms.css', res);
+    }
+  }
+
+  self.routes['/js/plugin/cms/list-dropzone.js'] = {
+    get: function(req, res) {
+      web.utils.serveStaticFile(pluginConf.pluginPath + '/static/list-dropzone.js', res);
     }
   }
   web.applyRoutes(self.routes);

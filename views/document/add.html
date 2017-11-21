@@ -24,9 +24,9 @@
     {%endif%}
 
     {%if not doc._id and not isFolder and docTypeMap %}
-    <div>
+    <div class="form-group">
       <label>Document Type:
-        <select onchange="reloadDocType(this)">
+        <select class="form-control" onchange="reloadDocType(this)">
           <option value="">File</option>  
           {%for key, docType in docTypeMap%}
     
@@ -37,10 +37,10 @@
     </div>
     {%endif%}
 
-    <div>
-      <label>Name:
-        <input type="text" name="name" placeholder="name" value="{{doc.name}}" />
-      </label>
+    <div class="form-group">
+      <label>Name: </label>
+
+      <input class="form-control" type="text" name="name" placeholder="name" value="{{doc.name}}" />
     </div>
     {%if isFolder%}
     <input type="hidden" name="docType" value="folder"/>
@@ -54,54 +54,54 @@
      {%if editable.type == 'text' %}
         {%set itemValue = doc[editable.name]%}
 
-         <div><label>{{editable.label}}:
-          <input type="text" name="{{editable.name}}" placeholder="{{editable.label}}" value="{{itemValue}}"/>
-          </label>
+         <div class="form-group"><label>{{editable.label}}:</label>
+
+          <input class="form-control" type="text" name="{{editable.name}}" placeholder="{{editable.label}}" value="{{itemValue}}"/>
         </div>
 
       {%elif  editable.type == 'date'%}
         {%set itemValue = doc[editable.name] + ''%}
 
-         <div><label>{{editable.label}}:
-          <input type="text" name="{{editable.name}}" placeholder="{{editable.label}}" value="{{itemValue}}"/>
-          </label>
+         <div class="form-group"><label>{{editable.label}}:</label>
+
+          <input  class="form-control" type="text" name="{{editable.name}}" placeholder="{{editable.label}}" value="{{itemValue}}"/>
         </div>
 
       {%elif  editable.type == 'file'%}
-       <div><label>{{editable.label}}:
-        <textarea name="{{editable.name}}" placeholder="{{editable.label}}" style="width: 100%; height: 400px;">{%set fileItem = doc['content']%}{%if fileItem%}{{fileItem.toString('utf8')}}{%endif%}</textarea>
-        </label>
+       <div class="form-group"><label>{{editable.label}}:</label>
+
+        <textarea  class="form-control" name="{{editable.name}}" placeholder="{{editable.label}}" style="width: 100%; height: 400px;">{%set fileItem = doc['content']%}{%if fileItem%}{{fileItem.toString('utf8')}}{%endif%}</textarea>
       </div>
       {%endif%}
     {%endif%}
     {%endfor%}
 
     {# 
-    <div><label>Route:
-      <input type="text" name="route" placeholder="route" value="{{doc.route}}"/>
+    <div class="form-group"><label>Route:
+      <input class="form-control" type="text" name="route" placeholder="route" value="{{doc.route}}"/>
       </label>
     </div>
 
     <div><label>Controller:
-      <input type="text" name="controller" placeholder="controller" value="{{doc.controller}}"/>
+      <input class="form-control" type="text" name="controller" placeholder="controller" value="{{doc.controller}}"/>
       </label>
     </div>
 
     <div><label>Content:
-      <textarea name="content" placeholder="content" style="width: 100%; height: 320px;">{{doc.content.toString('utf8')}}</textarea>
+      <textarea class="form-control" name="content" placeholder="content" style="width: 100%; height: 320px;">{{doc.content.toString('utf8')}}</textarea>
       </label>
     </div>
     #}
 
     {%endif%}
-    <a class="tiny secondary button" href="{{context|safe}}/document/list?folderId={{folderId}}">Cancel</a>
+    <a class="tiny secondary button btn btn-default" href="{{context|safe}}/document/list?folderId={{folderId}}">Cancel</a>
     
 
     {%if doc._id%}
-    <input class="tiny button" type="submit" value="Update"/>
-    <a href="{{context|safe}}/document/delete/{{doc._id.toString()|urlencode}}" onclick="return confirm('Are you sure you want to delete this?')" class="tiny button alert" style="float: right;">Delete</a>
+    <input class="tiny button btn btn-primary" type="submit" value="Update"/>
+    <a href="{{context|safe}}/document/delete/{{doc._id.toString()|urlencode}}" onclick="return confirm('Are you sure you want to delete this?')" class="tiny button btn btn-danger" style="float: right;">Delete</a>
     {%else%}
-    <input class="tiny button" type="submit" value="Add"/>
+    <input class="tiny button btn btn-primary" type="submit" value="Add"/>
     {%endif%}
 
     
