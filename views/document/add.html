@@ -69,8 +69,12 @@
 
       {%elif  editable.type == 'file'%}
        <div class="form-group"><label>{{editable.label}}:</label>
-
-        <textarea  class="form-control" name="{{editable.name}}" placeholder="{{editable.label}}" style="width: 100%; height: 400px;">{%set fileItem = doc['content']%}{%if fileItem%}{{fileItem.toString('utf8')}}{%endif%}</textarea>
+        {%if 'image' in doc.mimeType %}
+          <img src="{{context|safe}}/document/download?_id={{doc._id.toString()|urlencode}}" alt="Img" />
+        {%else%}
+          <textarea  class="form-control" name="{{editable.name}}" placeholder="{{editable.label}}" style="width: 100%; height: 400px;">{%set fileItem = doc['content']%}{%if fileItem%}{{fileItem.toString('utf8')}}{%endif%}</textarea>
+        {%endif%}
+       
       </div>
       {%endif%}
     {%endif%}
