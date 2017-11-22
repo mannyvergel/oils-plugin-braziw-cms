@@ -144,7 +144,16 @@ module.exports = function(pluginConf, web) {
               
               return;
             }
-            doc[name] = null;
+            if (name == "content") {
+              if (content == "") {
+                //only empty content when control exists
+                doc[name] = null
+              }
+            } else {
+              //check if these needs same logic as above
+              doc[name] = null;
+            }
+            
             //console.log('!!!' + name + ' :: ' + doc[name]);
           }
           //console.log('!!!'+  i);
@@ -156,21 +165,7 @@ module.exports = function(pluginConf, web) {
         if (folder) {
           doc.parentFolderId = folder._id;
         }
-        // if (updateMode) {
-        //   var docData = doc.toObject();
-        //   delete docData._id;
-        //   Document.update({_id:doc._id}, docData, function(err) {
-        //     if (err) {
-        //       console.error('Error saving doc', err);
-        //     }
-        //   })
-        // } else {
-        //   doc.save(function(err) {
-        //     if (err) {
-        //       console.error('Error saving doc', err);
-        //     }
-        //   })
-        // }
+
         doc.meta.lastUpdateDt = new Date();
         if (req.user && req.user.username) {
           doc.meta.lastUpdateBy = req.user.username;

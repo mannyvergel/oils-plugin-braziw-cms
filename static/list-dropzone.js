@@ -2,19 +2,16 @@ function initDropZone(context, csrf, folderId) {
 
 	var oDrop = document.getElementById('DROP_ZONE');
 	if (oDrop) { 
-	  function uploadFile(file){
+	  function uploadFiles(files){
+	  	  if (!files || files.length == 0) {
+	  	  	alert("Nothing to upload.")
+	  	  	return;
+	  	  }
+
 	      var url = '/admin/document/upload?_csrf=' + csrf;
 	      var xhr = new XMLHttpRequest();
 	      var fd = new FormData();
 	      xhr.open("POST", url, true);
-	      // xhr.onreadystatechange = function() {
-	      //     if (xhr.readyState == 4 && xhr.status == 200) {
-	      //         // Every thing ok, file uploaded
-	      //         console.log(xhr.responseText); // handle response.
-	      //     }
-	      // };
-	      // fd.append("upload_file", file);
-	      // xhr.send(fd);
 
 	      xhr.onreadystatechange = function() {
 	          if (xhr.readyState == 4) {
@@ -30,9 +27,10 @@ function initDropZone(context, csrf, folderId) {
 
 	      var formData = new FormData();
 	      formData.append('docId', folderId);
-	      // formData.append('param2', 12345); 
-	      // formData.append('uploadDir', 'public-data');  
-	      formData.append('myfile', file);
+	      for (var i=0; i<files.length; i++) {
+	      	formData.append('myfile', files[i]);	
+	      } 
+	      
 
 	      xhr.send(formData);
 	  }
@@ -58,11 +56,7 @@ function initDropZone(context, csrf, folderId) {
 	      }  
 	    }
 
-	    for (var i=0; i<files.length; i++) {
-	      var f = files[i];
-	      console.log("... file[" + i + "].name = " + f.name);
-	      uploadFile(f);
-	    }
+	    uploadFiles(files);
 
 
 	    this.style.background = '';
