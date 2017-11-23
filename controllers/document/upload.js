@@ -22,10 +22,9 @@ module.exports = {
             doc.content = fs.readFile(f.path);
             doc.parentFolderId = parentFolderId;
 
-            doc.meta = {
-              lastUpdateBy: req.user._id.toString(),
-              createBy: req.user._id.toString()
-            }
+            doc.createBy = req.user._id.toString();
+            doc.updateBy = doc.createBy;
+
             doc.isFolder = false,
             doc.docType = 'file';
             doc.name = f.originalname;

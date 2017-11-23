@@ -1,13 +1,13 @@
 {
   "name": "oils-plugin-braziw-cms",
-  "version": "2.4.2",
-  "description": "Content management system plugin for oils js",
+  "version": "2.4.3",
+  "description": "Content and document management system plugin for oils js",
   "keywords": [
     "cms",
     "braziw",
     "oils",
-    "wateroo",
     "content management system",
+    "document management system",
     "wcm",
     "dms"
   ],

@@ -164,65 +164,121 @@ module.exports = function(pluginConf, web, next) {
   web.on('initServer', function() {
 
     if (!web.syspars) {
-      console.warn('CMS needs oils-plugin-syspars plugin');
-    } else {
-      web.syspars.get('CMS_RUN_ONCE', function(err, syspar) {
-        if (!syspar) {
+      throw new Error('CMS needs oils-plugin-syspars plugin')
+    }
 
+    var Document = web.includeModel(pluginConf.models.Document);
+    if (!Document.getModelDictionary().schema.createDt) {
+      throw new Error("Your Document schema is outdated. Please change to latest.");
+    }
 
-          if (web.auth) {
-            var User = web.auth.UserModel;
+    web.syspars.get('CMS_RUN_ONCE', function(err, syspar) {
+      if (!syspar) {
 
+        cmsRunOnce();
 
-            var saveAdminUser = function() {
-              var user = new User();
-                user.username = 'admin';
-                user.password = 'abcd1234';
-                user.birthday= new Date();
-                user.lastname ='John';
-                user.firstname = 'Doe';
-                user.middlename = 'Admin';
-                user.role = 'ADMIN';
-                user.fullname = 'Admin';
-                user.nickname = 'Admin';
-                user.email = 'admin@example.com';
-                user.save(function(err) {
-                  if (err) throw err;
-                });
-                console.log('Admin user saved.');
+        web.syspars.set('CMS_RUN_ONCE', 'Y');
+      } else {
+        //TODO: [11/21/2017] in fare future, migration is not needed anymore.
+        if (!syspar.createDt) {
+          //createDt feature was added after this
+          migrateTimestamp();
+        }
+      }
+
+      function migrateTimestamp() {
+        //migrate old documents with subroot meta {timestamp} 
+        web.runOnce('CMS_MIGRATE_TIMESTAMP', function() {
+          
+          Document.find({}, function(err, documents) {
+            if (!documents) {
+              console.log("Nothing to migrate");
+              return;
             }
 
-            console.log('First time to run. Running DMS init data.');
-             //init-data
-            User.findOne({username:'admin'}, function(err, user) {
-              if (!user) {
-                saveAdminUser();
-              } else if (user.role != 'ADMIN') {
-                user.remove(function() {
-                  saveAdminUser();
-                })
+            console.log("Start migration of doc timestamps.");
+
+            for (var i=0; i<documents.length; i++) {
+              var doc = documents[i];
+             
+              if (doc.meta) {
+                doc.createBy = doc.meta.createBy;
+                doc.createDt = doc.meta.createDt;
+                doc.updateDt = doc.meta.lastUpdateDt;
+                doc.updateBy = doc.meta.lastUpdateBy;
+
+                doc.meta = undefined;
+                doc.save(function(err) {
+                  if (err) {
+                    console.error(err);
+                  }
+
+                  Document.update({_id: doc._id}, {$unset: {meta: 1 }}, function(err) {
+                    if (err) {
+                      console.error(err);
+                    }
+                  });
+                });
               }
               
-            });
+            }
+
+            console.log("Migrated", documents.length, "doc timestamps.");
+          })
+        });
+      }
+
+
+      function cmsRunOnce() {
+        if (web.auth) {
+          var User = web.auth.UserModel;
+
+
+          var saveAdminUser = function() {
+            var user = new User();
+              user.username = 'admin';
+              user.password = 'abcd1234';
+              user.birthday= new Date();
+              user.lastname ='John';
+              user.firstname = 'Doe';
+              user.middlename = 'Admin';
+              user.role = 'ADMIN';
+              user.fullname = 'Admin';
+              user.nickname = 'Admin';
+              user.email = 'admin@example.com';
+              user.save(function(err) {
+                if (err) throw err;
+              });
+              console.log('Admin user saved.');
           }
 
-          SiteSetting.findOne({docType:'SiteSetting'}, function(err, siteSetting) {
-            if (!siteSetting) {
-              siteSetting = new SiteSetting();
-              siteSetting.title = pluginConf.defaultSiteTitle;
-              siteSetting.currency = 'P';
-              siteSetting.save(function(err) {
-                if (err) throw err;
-                  web.cms.updateSiteSettingCache();
+          console.log('First time to run. Running DMS init data.');
+           //init-data
+          User.findOne({username:'admin'}, function(err, user) {
+            if (!user) {
+              saveAdminUser();
+            } else if (user.role != 'ADMIN') {
+              user.remove(function() {
+                saveAdminUser();
               })
             }
-          })
-
-           
-          web.syspars.set('CMS_RUN_ONCE', 'Y');
+            
+          });
         }
-      });
-    }
+
+        SiteSetting.findOne({docType:'SiteSetting'}, function(err, siteSetting) {
+          if (!siteSetting) {
+            siteSetting = new SiteSetting();
+            siteSetting.title = pluginConf.defaultSiteTitle;
+            siteSetting.currency = 'P';
+            siteSetting.save(function(err) {
+              if (err) throw err;
+                web.cms.updateSiteSettingCache();
+            })
+          }
+        })
+      }
+    });
 
   });
   

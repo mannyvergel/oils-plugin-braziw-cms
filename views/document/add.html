@@ -47,55 +47,54 @@
     
     {%else%}
 
-    <input type="hidden" name="docType" value="{{doc.docType}}"/>
+    
+
+    {%set hasDocType = false%}
 
     {%for editable in modelEditables%}
-    {%if editable.name != 'name'%}
-     {%if editable.type == 'text' %}
-        {%set itemValue = doc[editable.name]%}
-
-         <div class="form-group"><label>{{editable.label}}:</label>
-
-          <input class="form-control" type="text" name="{{editable.name}}" placeholder="{{editable.label}}" value="{{itemValue}}"/>
-        </div>
-
-      {%elif  editable.type == 'date'%}
-        {%set itemValue = doc[editable.name] + ''%}
-
-         <div class="form-group"><label>{{editable.label}}:</label>
-
-          <input  class="form-control" type="text" name="{{editable.name}}" placeholder="{{editable.label}}" value="{{itemValue}}"/>
-        </div>
-
-      {%elif  editable.type == 'file'%}
-       <div class="form-group"><label>{{editable.label}}:</label>
-        {%if 'image' in doc.mimeType %}
-          <img src="{{context|safe}}/document/download?_id={{doc._id.toString()|urlencode}}" alt="Img" />
-        {%else%}
-          <textarea  class="form-control" name="{{editable.name}}" placeholder="{{editable.label}}" style="width: 100%; height: 400px;">{%set fileItem = doc['content']%}{%if fileItem%}{{fileItem.toString('utf8')}}{%endif%}</textarea>
-        {%endif%}
+      {%if editable.name != 'name'%}
        
-      </div>
+       {%if editable.name == 'docType'%}
+         {%set hasDocType = true%}
+         <select class="form-control" name="docType">
+          <option value="file">File</option>  
+          {%for key, docType in docTypeMap%}
+    
+          <option value="{{key}}" {%if doc.docType == key%}selected{%endif%}>{{docType}}</option>
+          {%endfor%}
+        </select>
+       {%elif editable.type == 'text' %}
+          {%set itemValue = doc[editable.name]%}
+
+           <div class="form-group"><label>{{editable.label}}:</label>
+
+            <input class="form-control" type="text" name="{{editable.name}}" placeholder="{{editable.label}}" value="{{itemValue}}"/>
+          </div>
+
+        {%elif  editable.type == 'date'%}
+          {%set itemValue = doc[editable.name] + ''%}
+
+           <div class="form-group"><label>{{editable.label}}:</label>
+
+            <input  class="form-control" type="text" name="{{editable.name}}" placeholder="{{editable.label}}" value="{{itemValue}}"/>
+          </div>
+
+        {%elif  editable.type == 'file'%}
+         <div class="form-group"><label>{{editable.label}}:</label>
+          {%if doc.mimeType and 'image' in doc.mimeType %}
+            <img src="{{context|safe}}/document/download?_id={{doc._id.toString()|urlencode}}" alt="Img" />
+          {%else%}
+            <textarea  class="form-control" name="{{editable.name}}" placeholder="{{editable.label}}" style="width: 100%; height: 400px;">{%set fileItem = doc['content']%}{%if fileItem%}{{fileItem.toString('utf8')}}{%endif%}</textarea>
+          {%endif%}
+         
+        </div>
+        {%endif%}
       {%endif%}
-    {%endif%}
     {%endfor%}
 
-    {# 
-    <div class="form-group"><label>Route:
-      <input class="form-control" type="text" name="route" placeholder="route" value="{{doc.route}}"/>
-      </label>
-    </div>
-
-    <div><label>Controller:
-      <input class="form-control" type="text" name="controller" placeholder="controller" value="{{doc.controller}}"/>
-      </label>
-    </div>
-
-    <div><label>Content:
-      <textarea class="form-control" name="content" placeholder="content" style="width: 100%; height: 320px;">{{doc.content.toString('utf8')}}</textarea>
-      </label>
-    </div>
-    #}
+    {%if not hasDocType%}
+    <input type="hidden" name="docType" value="{{doc.docType}}"/>
+    {%endif%}
 
     {%endif%}
     <a class="tiny secondary button btn btn-default" href="{{context|safe}}/document/list?folderId={{folderId}}">Cancel</a>

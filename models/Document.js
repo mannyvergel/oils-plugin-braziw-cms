@@ -13,16 +13,23 @@ module.exports = {
     
     name: {type: String, required: true},
     route: String, // not sure what this is, seems not used.
-    mimeType: String, //optional for now, maybe make it required in the future
+    mimeType: String, //optional for now, maybe make it required in the future, added auto assign
     fileSize: Number, //optional for now, maybe make it required in the future
     content: Buffer,
-    
+
+    //-------- for compatibility and migration, remove this in the future.
     meta: {
-      lastUpdateDt: {type: Date, default: Date.now},
-      lastUpdateBy: {type: String, default: 'SYSTEM'},
-      createDt: {type: Date, default: Date.now},
-      createBy: {type: String, default: 'SYSTEM'}
+      lastUpdateDt: {type: Date},
+      lastUpdateBy: {type: String},
+      createDt: {type: Date},
+      createBy: {type: String}
     },
+    //--------
+
+    updateDt: {type: Date, default: Date.now},
+    updateBy: {type: String, default: 'SYSTEM'},
+    createDt: {type: Date, default: Date.now},
+    createBy: {type: String, default: 'SYSTEM'},
 
     //auto fields
     isFolder: {type: Boolean}, //need to store for sorting, type == 'Folder' , automatically assigned out of docType
@@ -35,10 +42,29 @@ module.exports = {
 
   initSchema: function(schema){
     schema.index({parentFolderId: 1, lowerCaseName: 1}, {unique: true});
-    //schema.index({voteCount: -1, meta.lastUpdateBy: -1});
+
     schema.pre('save', function(next) {
       this.isFolder = (this.docType == web.cms.constants.folder);
       this.lowerCaseName = this.name.toLowerCase();
+
+      if (!this.isFolder) {
+        if (!this.mimeType) {
+          //assign mime type if possible
+          this.mimeType = web.utils.getMimeType(this.name);
+          if (web.conf.isDebug) {
+            console.debug("Assigning mime type", this.mimeType, " for the first time:", this.name);
+          }
+        }
+
+        if (!this.fileSize) {
+          //for now do only once to conserve perf
+          this.fileSize = this.content ? this.content.byteLength : 0;
+          if (web.conf.isDebug) {
+            console.debug("Assigning file size", this.fileSize, " for the first time:", this.name);
+          }
+        }
+      }
+
       var self = this;
       web.cms.utils.getFolderPath(this, function(err, folderPath) {
         if (err) {
@@ -57,6 +83,8 @@ module.exports = {
   },
 
   editables: [{"name": "name", "type": "text", "label": "Name", "required": true},
-    {"name": "content", "type": "file", "label": "Content"}
+    {"name": "docType", "type": "text", "label": "Doc Type"},
+    {"name": "mimeType", "type": "text", "label": "Mime Type"},
+    {"name": "content", "type": "file", "label": "Content"},
     ]
 } 
