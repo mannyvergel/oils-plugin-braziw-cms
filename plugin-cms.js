@@ -202,10 +202,10 @@ module.exports = function(pluginConf, web, next) {
               var doc = documents[i];
              
               if (doc.meta) {
-                doc.createBy = doc.meta.createBy;
-                doc.createDt = doc.meta.createDt;
-                doc.updateDt = doc.meta.lastUpdateDt;
-                doc.updateBy = doc.meta.lastUpdateBy;
+                doc.createBy = doc.createBy || doc.meta.createBy;
+                doc.createDt = doc.createDt || doc.meta.createDt;
+                doc.updateDt = doc.updateDt || doc.meta.lastUpdateDt;
+                doc.updateBy = doc.updateBy || doc.meta.lastUpdateBy;
 
                 doc.meta = undefined;
                 doc.save(function(err) {

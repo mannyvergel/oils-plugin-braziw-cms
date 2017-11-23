@@ -166,11 +166,11 @@ module.exports = function(pluginConf, web) {
           doc.parentFolderId = folder._id;
         }
 
-        doc.meta.lastUpdateDt = new Date();
+        doc.updateDt = new Date();
         if (req.user && req.user.username) {
-          doc.meta.lastUpdateBy = req.user.username;
+          doc.updateBy = req.user.username;
           if (!updateMode) {
-            doc.meta.createBy = req.user.username;
+            doc.createBy = req.user.username;
           }
         }
         doc.save(function(err) {

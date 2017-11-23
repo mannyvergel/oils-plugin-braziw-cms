@@ -13,6 +13,9 @@
 {% endblock %}
 
 {% block content %}
+<a class="tiny secondary button btn btn-default" href="{{context|safe}}/document/list?folderId={{folderId}}"><i class="fa fa-arrow-left fa-fw"></i>Back to Folder</a>
+<br/><br/>
+
 {%if customDocType%}
 {%set customDocTypeUrl = '/' + customDocType %}
 {%endif%}
@@ -97,7 +100,7 @@
     {%endif%}
 
     {%endif%}
-    <a class="tiny secondary button btn btn-default" href="{{context|safe}}/document/list?folderId={{folderId}}">Cancel</a>
+    
     
 
     {%if doc._id%}

@@ -14,7 +14,7 @@ module.exports = {
       try {
         var arrFiles = req.files;
         var parentFolderId = req.body.docId;
-
+        var filenamesUploaded = [];
         if (arrFiles) {
           for (var i=0; i<arrFiles.length; i++) {
             var f = arrFiles[i];
@@ -38,10 +38,13 @@ module.exports = {
             }
 
             fs.unlink(f.path);
+            filenamesUploaded.push(doc.name);
             //TODO: mime type!!!
             //console.log('!!!!', arrFiles[i]);
           }
         }
+
+        req.flash('info', 'Uploaded ' + filenamesUploaded.join(', '));
         res.json({"status": 200});
       } catch (ex) {
         console.error(ex);
