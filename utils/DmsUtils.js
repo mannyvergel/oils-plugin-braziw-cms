@@ -1,10 +1,10 @@
-var _path = require('path');
-var async = require('async');
+const _path = require('path');
+const async = require('async');
 module.exports = function(pluginConf, web) {
-  var self = this;
+  let self = this;
 
-  var mongoose = web.lib.mongoose;
-  var Document = web.includeModel(pluginConf.models.Document);
+  let mongoose = web.require('mongoose');
+  let Document = web.includeModel(pluginConf.models.Document);
 
 
 
@@ -42,7 +42,7 @@ module.exports = function(pluginConf, web) {
       }
 
 
-      var folderId = null;
+      let folderId = null;
       if (parentFolders) {
         folder = parentFolders[parentFolders.length-1];
         folderId = folder._id.toString();
@@ -57,14 +57,14 @@ module.exports = function(pluginConf, web) {
   }
 
 
-  var redirectToMainWithError = function(req, res, error) {
+  let redirectToMainWithError = function(req, res, error) {
     req.flash('error', error);
     res.redirect(pluginConf.context);
   };
 
   self.toObjectId = function(idStr) {
     try {
-      var id = mongoose.Types.ObjectId(idStr);
+      let id = mongoose.Types.ObjectId(idStr);
       return id;
     } catch(e) {
       console.error('id error: ' + idStr, e);
@@ -75,8 +75,8 @@ module.exports = function(pluginConf, web) {
 
   self.initDocRoutes = function() {
     Document.find({route: {'$ne': null}}, '', {lean: true}, function(err, docs) {
-      for (var i in docs) {
-        var doc = docs[i];
+      for (let i in docs) {
+        let doc = docs[i];
         self.addDocRoute(doc);
         
       }
@@ -100,8 +100,8 @@ module.exports = function(pluginConf, web) {
     removeRoute(doc.route);
   };
 
-  var removeRoute = function(routeStr) {
-    var routes = web.app.routes;
+  let removeRoute = function(routeStr) {
+    let routes = web.app.routes;
     for (k in routes.get) {
       if (routes.get[k].path + "" === routeStr + "") {
         routes.get.splice(k,1);
@@ -129,10 +129,10 @@ module.exports = function(pluginConf, web) {
     async.whilst(function() {
       return arrDocs.length > 0;
     }, function(asyncCallback) {
-      var lastDoc = arrDocs.pop();
+      let lastDoc = arrDocs.pop();
       if (lastDoc.isFolder) {
         self.getChildren(lastDoc, function(err, docs) {
-          for (var i in docs) {
+          for (let i in docs) {
             arrDocs.unshift(docs[i]);
           }
 
@@ -189,7 +189,7 @@ module.exports = function(pluginConf, web) {
       callback = optionalDocType;
       optionalDocType = null;
     }
-    var SpecificObject = null;
+    let SpecificObject = null;
     if (optionalDocType) {
       SpecificObject = web.cms.getCmsModel(optionalDocType);
     } else {
@@ -201,7 +201,7 @@ module.exports = function(pluginConf, web) {
   };
 
   self.retrieveDoc = function(path, callback) {
-    var arrPaths = self.getPathAsArray(path);
+    let arrPaths = self.getPathAsArray(path);
 
     self._retrieveDocFromArray(arrPaths, function(err, doc) {
       if (err) throw err;
@@ -224,11 +224,11 @@ module.exports = function(pluginConf, web) {
     // if (console.isDebug) {
     //   console.debug('Retrieve doc from array: ' + arrPaths);
     // }
-    var firstFile = arrPaths[0];
+    let firstFile = arrPaths[0];
 
     arrPaths.shift();
 
-    var parentDocId = currDoc ? currDoc._id : null;
+    let parentDocId = currDoc ? currDoc._id : null;
 
     self.checkExistence(firstFile, parentDocId, function(err, doc) {
       if (err) throw err;
@@ -254,7 +254,7 @@ module.exports = function(pluginConf, web) {
     }
 
     if (!doc.parentFolderId) {
-      var folderPath = '/';
+      let folderPath = '/';
       if (parentFolders && parentFolders.length > 0) {
         folderPath = folderPath + parentFolders.join('/') + '/';
       }
@@ -277,19 +277,19 @@ module.exports = function(pluginConf, web) {
     }
 
     if (optionalContent !== null && typeof optionalContent === 'string') {
-      var strValue = optionalContent;
+      let strValue = optionalContent;
       optionalContent = new Object();
       optionalContent.content = strValue;
     }
 
-    var parentDir = _path.dirname(path);
+    let parentDir = _path.dirname(path);
     self.mkdirs(parentDir, function(err, parentDoc) {
       if (err) throw err;
 
-      var basename = _path.basename(path);
-      var parentDocId = parentDoc ? parentDoc._id : null
+      let basename = _path.basename(path);
+      let parentDocId = parentDoc ? parentDoc._id : null
 
-      var myDocType = null;
+      let myDocType = null;
       if (optionalContent && optionalContent.docType) {
         myDocType = optionalContent.docType;
       }
@@ -299,7 +299,7 @@ module.exports = function(pluginConf, web) {
 
         if (!doc) {
           if (myDocType) {
-            var SpecificObject = web.cms.getCmsModel(myDocType);
+            let SpecificObject = web.cms.getCmsModel(myDocType);
             doc = new SpecificObject();
           } else {
             doc = new Document();
@@ -314,7 +314,7 @@ module.exports = function(pluginConf, web) {
           doc.docType = web.cms.constants.file;
 
           if (optionalContent) {
-            for (var i in optionalContent) {
+            for (let i in optionalContent) {
               doc[i] = new Buffer(optionalContent[i], "utf8");  
             }
           }
@@ -344,14 +344,14 @@ module.exports = function(pluginConf, web) {
   }
 
   self.mkdirs = function(path, callback) {
-    var arrFolders = self.getPathAsArray(path);
+    let arrFolders = self.getPathAsArray(path);
     //console.log('!' + arrFolders);
     _mkdirs(arrFolders, callback, 0);
    
   };
 
-  var _mkdirs = function(arrFolders, callback, index, parentFolderId) {
-    var folderName = arrFolders[index];
+  let _mkdirs = function(arrFolders, callback, index, parentFolderId) {
+    let folderName = arrFolders[index];
     //console.log('ZZZ!!!' + folderName);
     Document.findOne({parentFolderId: parentFolderId, lowerCaseName: folderName.toLowerCase()}, function(err, doc) {
       if (!doc) {
@@ -374,7 +374,7 @@ module.exports = function(pluginConf, web) {
     })
   };
 
-  var _handleMkdirsCallback = function(doc, arrFolders, callback, index, parentFolderId) {
+  let _handleMkdirsCallback = function(doc, arrFolders, callback, index, parentFolderId) {
     index++;
     if (index < arrFolders.length) {
       _mkdirs(arrFolders, callback, index, doc._id);

@@ -1,11 +1,11 @@
 module.exports = function(pluginConf, web) {
 
-  var Document = web.includeModel(pluginConf.models.Document);
-  var context = pluginConf.context;
-  var mongoose = web.lib.mongoose;
-  var dmsUtils = web.cms.utils;
-  var getModelEditables = function(docType) {
-    var modelEditables = null;
+  const Document = web.includeModel(pluginConf.models.Document);
+  const context = pluginConf.context;
+  const mongoose = web.require('mongoose');
+  const dmsUtils = web.cms.utils;
+  let getModelEditables = function(docType) {
+    let modelEditables = null;
     if (docType && docType != 'file' && docType != 'folder') {
       modelEditables = web.cms.getCmsModel(docType).getModelDictionary().editables;
     } else {
@@ -16,18 +16,18 @@ module.exports = function(pluginConf, web) {
     return modelEditables;
   }
 
-  var myRoutes = {
+  let myRoutes = {
     get: function(req, res) {
       
 
       dmsUtils.handleFolder(req.query.folderId, req, res, function(err, folder, folderId, parentFolders) {
         folderId = folderId || '';
 
-        var docTypeMap = web.cms.getDocTypeMap();
-        var fileId = req.params.FILE_ID;
+        let docTypeMap = web.cms.getDocTypeMap();
+        let fileId = req.params.FILE_ID;
         if (fileId) {
           fileId = dmsUtils.toObjectId(fileId);
-          var docType = req.query.docType;
+          let docType = req.query.docType;
       
          if (docType && docType != 'file' && docType != 'folder') {
            Document = web.cms.getCmsModel(docType);
@@ -39,23 +39,23 @@ module.exports = function(pluginConf, web) {
               res.redirect(context + '/document/list?folderId=' + folderId);
               return;
             }
-            var docType = doc.docType;
+            let docType = doc.docType;
             if (doc.parentFolderId) {
               folderId = doc.parentFolderId.toString();
             }
             doc.route = doc.route || '';
-            var modelEditables = getModelEditables(docType);
+            let modelEditables = getModelEditables(docType);
             res.renderFile(pluginConf.views.addDocument,
             {context: context, folderId: folderId, isFolder: doc.isFolder, doc: doc, modelEditables: modelEditables, docTypeMap: docTypeMap});
           })
         } else {
-          //var docType = req.params['DOC_TYPE'];
-          var doc = new Object();
+          //let docType = req.params['DOC_TYPE'];
+          let doc = new Object();
 
           doc.docType = req.query.docType || web.cms.constants.file;
           doc.route = doc.route || '';
           doc.controller = doc.controller || '';
-          var modelEditables = getModelEditables(doc.docType);
+          let modelEditables = getModelEditables(doc.docType);
           res.renderFile(pluginConf.views.addDocument, 
           {context: context, folderId: folderId, isFolder: req.query.isFolder, doc: doc, customDocType: docType, modelEditables: modelEditables, docTypeMap: docTypeMap});
         }
@@ -70,7 +70,7 @@ module.exports = function(pluginConf, web) {
 
       dmsUtils.handleFolder(req.body.folderId, req, res, function(err, folder, folderId) {
         
-        var docType = req.body.docType;
+        let docType = req.body.docType;
       
          if (docType && docType != 'file' && docType != 'folder') {
           Document = web.cms.getCmsModel(docType);
@@ -78,7 +78,7 @@ module.exports = function(pluginConf, web) {
 
         if (req.body._id) {
           //updateMode = true;
-          var id = mongoose.Types.ObjectId(req.body._id);
+          let id = mongoose.Types.ObjectId(req.body._id);
           Document.findOne({_id: id}, function(err, doc) {
             if (doc) {
               handleDocSave(req, res, doc, folder, true);
@@ -86,7 +86,7 @@ module.exports = function(pluginConf, web) {
             }
           })
         } else {
-          var doc = new Document();
+          let doc = new Document();
           handleDocSave(req, res, doc, folder, false);
         }
 
@@ -101,19 +101,19 @@ module.exports = function(pluginConf, web) {
     }*/
   }
 
-  var handleDocSave = function(req, res, doc, folder, updateMode) {
-        var docType = req.body.docType;
-        var name = req.body.name;
+  let handleDocSave = function(req, res, doc, folder, updateMode) {
+        let docType = req.body.docType;
+        let name = req.body.name;
         if (docType == web.cms.constants.folder) {
           doc.isFolder = true;
         }
 
-        var editables = getModelEditables(docType);
+        let editables = getModelEditables(docType);
         //console.log('!!!' + JSON.stringify(editables));
-        for (var i in editables) {
-          var editable = editables[i];
-          var name = editable.name;
-          var content = req.body[name];
+        for (let i in editables) {
+          let editable = editables[i];
+          let name = editable.name;
+          let content = req.body[name];
 
           if (content) {
 
@@ -134,7 +134,7 @@ module.exports = function(pluginConf, web) {
               if (updateMode) {
                 res.redirect(context + '/document/edit/' + req.body._id);
               } else {
-                var isFolder = '';
+                let isFolder = '';
                 
                 if (doc.isFolder) {
                   isFolder = 'y';
@@ -188,7 +188,7 @@ module.exports = function(pluginConf, web) {
             }
 
 
-            var folderId = doc.parentFolderId || '';
+            let folderId = doc.parentFolderId || '';
             res.redirect(context + '/document/list?folderId=' + folderId);
           })
         

@@ -1,14 +1,14 @@
 module.exports = function(pluginConf, web) {
-  var Document = web.includeModel(pluginConf.models.Document);
-  var context = pluginConf.context;
-  var mongoose = web.lib.mongoose;
-  var dmsUtils = web.cms.utils;
-  var myRoutes = {
+  let Document = web.includeModel(pluginConf.models.Document);
+  let context = pluginConf.context;
+  let mongoose = web.require('mongoose');
+  let dmsUtils = web.cms.utils;
+  let myRoutes = {
 
     all: function(req, res) {
-      var id = mongoose.Types.ObjectId(req.params.DOC_ID);
+      let id = mongoose.Types.ObjectId(req.params.DOC_ID);
       Document.findOne({_id: id}, function(err, doc) {
-      	var folderId = '';
+      	let folderId = '';
       	if (doc.parentFolderId) {
       		folderId = doc.parentFolderId.toString();
       	}

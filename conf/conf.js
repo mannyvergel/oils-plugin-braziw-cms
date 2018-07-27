@@ -1,13 +1,13 @@
-var path = require('path');
-var fs = require('fs');
+const path = require('path');
+const fs = require('fs');
 module.exports = function(pluginConf) {
-  var dataDir = web.conf.dataDir;
-  var uploadDir = web.conf.uploadDir;
+  let dataDir = web.conf.dataDir;
+  let uploadDir = web.conf.uploadDir;
 
   uploadDir = uploadDir || (path.join(dataDir || path.join(web.conf.baseDir, '/data/'), 'upload'))
-  var pluginPath = pluginConf.pluginPath;
+  let pluginPath = pluginConf.pluginPath;
 
-  var parentDir = path.join(uploadDir, '../');
+  let parentDir = path.join(uploadDir, '../');
   if (!fs.existsSync(parentDir)) {
     fs.mkdirSync(parentDir);
   }

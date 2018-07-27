@@ -1,8 +1,8 @@
-var Document = web.models('Document');
+const Document = web.models('Document');
 
 module.exports = {
   get: function(req, res) {
-    var docId = req.query._id;
+    let docId = req.query._id;
 
     if (!docId) {
       throw new Error("Incorrect parameters");

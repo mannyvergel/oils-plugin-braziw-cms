@@ -1,13 +1,13 @@
 module.exports = function(pluginConf, web) {
-  var Document = web.includeModel(pluginConf.models.Document);
-  var context = pluginConf.context;
+  let Document = web.includeModel(pluginConf.models.Document);
+  let context = pluginConf.context;
   return {
     get: function(req, res) {
       web.cms.utils.handleFolder(req.query.folderId, req, res, function(err, folder, folderId, parentFolders) {
-        var page = req.query.p || '1';
-        var numberOfRecordsPerPage = pluginConf.numberOfRecordsPerPage;
+        let page = req.query.p || '1';
+        let numberOfRecordsPerPage = pluginConf.numberOfRecordsPerPage;
 
-        var skip = (page - 1) * numberOfRecordsPerPage;
+        let skip = (page - 1) * numberOfRecordsPerPage;
         
         Document.find({'parentFolderId': folderId}, '', {lean: true, skip: skip, sort:{isFolder: -1, name: 1}}, function(err, documents) {
     
@@ -16,15 +16,15 @@ module.exports = function(pluginConf, web) {
             documents = null;
           }
           folderId = folderId || '';
-          var folderPath = '';
-          for (var i in parentFolders) {
+          let folderPath = '';
+          for (let i in parentFolders) {
             folderPath = folderPath + '/' + parentFolders[i].name;
           }
           if (folderPath == '') {
             folderPath = '/';
           }
 
-          var options = {
+          let options = {
             documents: documents, 
             context: context, 
             folderId: 

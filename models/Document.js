@@ -1,5 +1,5 @@
-var mongoose = web.lib.mongoose;
-var Schema = mongoose.Schema;
+const mongoose = web.require('mongoose');
+const Schema = mongoose.Schema;
 module.exports = {
   name: 'Document',
   label: 'File',
@@ -65,7 +65,7 @@ module.exports = {
         }
       }
 
-      var self = this;
+      let self = this;
       web.cms.utils.getFolderPath(this, function(err, folderPath) {
         if (err) {
           console.error('Get folder path ' + err);

@@ -1,6 +1,6 @@
 module.exports = function(pluginConf, web, next) {
-  var pjson = web.include('/package.json');
-  var self = this;
+  let pjson = require('./package.json');
+  let self = this;
 
   web.cms = self;
   //backwards
@@ -10,16 +10,14 @@ module.exports = function(pluginConf, web, next) {
 
   pluginConf = web.utils.extend(require('./conf/conf.js')(pluginConf), pluginConf);
   web.cms.conf = pluginConf;
-  var context = pluginConf.context;
+  let context = pluginConf.context;
   
-  self.routes = {
-
-  }
+  self.routes = {};
 
 
-  var DmsUtils = require('./utils/DmsUtils');
+  let DmsUtils = require('./utils/DmsUtils');
   web.cms.utils = new DmsUtils(pluginConf, web);
-  web.cms.constants = new Object();
+  web.cms.constants = {};
   web.cms.constants.file = 'file';
   web.cms.constants.folder = 'folder';
 
@@ -29,36 +27,36 @@ module.exports = function(pluginConf, web, next) {
     }
 
     return web.includeModel(web.cms.conf.models[docType]);
-  }
+  };
 
   web.cms.registerCmsModel = function(modelName, path) {
     if (!web.cms.conf.models[modelName]) {
       web.cms.conf.models[modelName] = path;
     }
-  }
+  };
 
   web.cms.getCmsModels = function() {
-    var myModels = []
-    for (var i in web.cms.conf.models) {
+    let myModels = [];
+    for (let i in web.cms.conf.models) {
       myModels.push(web.cms.getCmsModel(i));
     }
 
     return myModels;
-  }
+  };
 
   web.cms.getDocTypeMap = function() {
-    var myModels = web.cms.getCmsModels();
-    var docTypeMap = new Object();
-    for (var i in myModels) {
-      var modelDict = myModels[i].getModelDictionary();
+    let myModels = web.cms.getCmsModels();
+    let docTypeMap = {};
+    for (let i in myModels) {
+      let modelDict = myModels[i].getModelDictionary();
       if (modelDict.name != 'Document') {
-        var label = modelDict.label || modelDict.name;
+        let label = modelDict.label || modelDict.name;
         docTypeMap[modelDict.name] = label;
       }
     }
 
     return docTypeMap;
-  }
+  };
 
   if (pluginConf.defaultMenu) {
     web.cms.adminMenu = pluginConf.defaultMenu;
@@ -76,13 +74,13 @@ module.exports = function(pluginConf, web, next) {
       all: function(req, res, next) {
         web.auth.loginUtils.handleRole(pluginConf.accessRole, req, res, next);
       }
-    }
+    };
   } 
 
   web.on('beforeRender', function(view, options) {
     options = options || {};
     options._cms = web.cms;
-  })
+  });
 
   // self.routes[context] = function(req, res) {
   //   res.redirect(context + '/document/list');
@@ -107,38 +105,38 @@ module.exports = function(pluginConf, web, next) {
     get: function(req, res) {
       web.utils.serveStaticFile(pluginConf.pluginPath + '/static/admin.css', res);
     }
-  }
+  };
 
   self.routes['/css/plugin/cms/dms.css'] = {
     get: function(req, res) {
       web.utils.serveStaticFile(pluginConf.pluginPath + '/static/dms.css', res);
     }
-  }
+  };
 
   self.routes['/js/plugin/cms/list-dropzone.js'] = {
     get: function(req, res) {
       web.utils.serveStaticFile(pluginConf.pluginPath + '/static/list-dropzone.js', res);
     }
-  }
-  web.applyRoutes(self.routes);
+  };
+  web.addRoutes(self.routes);
   web.cms.utils.initDocRoutes();
 
-  // var WCM = require('./wcm/wcm.js');
+  // let WCM = require('./wcm/wcm.js');
   // web.cms.wcm = new WCM(pluginConf, web);
 
-  var SiteSetting = web.cms.getCmsModel('SiteSetting');
+  let SiteSetting = web.cms.getCmsModel('SiteSetting');
 
-  var updateSiteSettingCache = function(options) {
+  let updateSiteSettingCache = function(options) {
     SiteSetting.findOne({docType:'SiteSetting'}).lean().exec(function(err,siteSetting) {
       web.cms.siteSettingCache = web.cms.siteSettingCache || {
         title: pluginConf.defaultSiteTitle,
         currency: 'P'
-      }
+      };
 
       if (siteSetting) {
         web.cms.siteSettingCache = siteSetting;
         if (options) {
-          options['_site']  = web.cms.siteSetting;
+          options._site  = web.cms.siteSetting;
         }
 
         if (console.isDebug) {
@@ -148,7 +146,7 @@ module.exports = function(pluginConf, web, next) {
       }
       
     });
-  }
+  };
   web.cms.updateSiteSettingCache = updateSiteSettingCache;
   updateSiteSettingCache();
 
@@ -156,18 +154,18 @@ module.exports = function(pluginConf, web, next) {
     
     
     options = options || {};
-    var site = web.cms.siteSettingCache;
+    let site = web.cms.siteSettingCache || {};
     site.version = pjson.version;
-    options['_site'] = site;
+    options._site = site;
 
-  })
+  });
   web.on('initServer', function() {
 
     if (!web.syspars) {
-      throw new Error('CMS needs oils-plugin-syspars plugin')
+      throw new Error('CMS needs oils-plugin-syspars plugin');
     }
 
-    var Document = web.includeModel(pluginConf.models.Document);
+    let Document = web.includeModel(pluginConf.models.Document);
     if (!Document.getModelDictionary().schema.createDt) {
       throw new Error("Your Document schema is outdated. Please change to latest.");
     }
@@ -179,7 +177,8 @@ module.exports = function(pluginConf, web, next) {
 
         web.syspars.set('CMS_RUN_ONCE', 'Y');
       } else {
-        //TODO: [11/21/2017] in fare future, migration is not needed anymore.
+        //TODO: [11/21/2017] in far future, migration is not needed anymore.
+        
         if (!syspar.createDt) {
           //createDt feature was added after this
           migrateTimestamp();
@@ -198,8 +197,8 @@ module.exports = function(pluginConf, web, next) {
 
             console.log("Start migration of doc timestamps.");
 
-            for (var i=0; i<documents.length; i++) {
-              var doc = documents[i];
+            for (let i=0; i<documents.length; i++) {
+              let doc = documents[i];
              
               if (doc.meta) {
                 doc.createBy = doc.createBy || doc.meta.createBy;
@@ -224,18 +223,18 @@ module.exports = function(pluginConf, web, next) {
             }
 
             console.log("Migrated", documents.length, "doc timestamps.");
-          })
+          });
         });
       }
 
 
       function cmsRunOnce() {
         if (web.auth) {
-          var User = web.auth.UserModel;
+          let User = web.auth.UserModel;
 
 
-          var saveAdminUser = function() {
-            var user = new User();
+          let saveAdminUser = function() {
+            let user = new User();
               user.username = 'admin';
               user.password = 'abcd1234';
               user.birthday= new Date();
@@ -250,7 +249,7 @@ module.exports = function(pluginConf, web, next) {
                 if (err) throw err;
               });
               console.log('Admin user saved.');
-          }
+          };
 
           console.log('First time to run. Running DMS init data.');
            //init-data
@@ -260,7 +259,7 @@ module.exports = function(pluginConf, web, next) {
             } else if (user.role != 'ADMIN') {
               user.remove(function() {
                 saveAdminUser();
-              })
+              });
             }
             
           });
@@ -274,9 +273,9 @@ module.exports = function(pluginConf, web, next) {
             siteSetting.save(function(err) {
               if (err) throw err;
                 web.cms.updateSiteSettingCache();
-            })
+            });
           }
-        })
+        });
       }
     });
 
@@ -284,5 +283,5 @@ module.exports = function(pluginConf, web, next) {
   
 
   next();
-}
+};
 

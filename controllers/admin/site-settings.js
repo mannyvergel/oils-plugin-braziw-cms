@@ -7,14 +7,14 @@ module.exports = function(pluginConf, web) {
 
     },
     post: function(req, res) {
-    	var bodyParams = req.body;
-    	var SiteSetting = web.cms.getCmsModel('SiteSetting');
+    	let bodyParams = req.body;
+    	let SiteSetting = web.cms.getCmsModel('SiteSetting');
     	SiteSetting.findOne({docType:'SiteSetting'}, function(err, siteSetting) {
     		if (err) throw err;
 
     		if (!siteSetting) throw new Error('Site Settings not found.');
 
-    		for (var i in bodyParams) {
+    		for (let i in bodyParams) {
     			siteSetting[i] = bodyParams[i];
     			siteSetting.save(function(err) {
     				if (err) throw err;
