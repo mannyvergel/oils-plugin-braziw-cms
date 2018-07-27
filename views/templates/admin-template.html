@@ -15,7 +15,7 @@
   <link rel="apple-touch-icon" sizes="114x114" href="/images/apple-touch-icon-retina.png" />
 
   <title>{% block title %}{% endblock %}</title>
-  <link rel="stylesheet" href="/css/vendor/foundation.min.css" />
+  <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/foundation/6.4.3/css/foundation.min.css" />
   <script src="/js/vendor/modernizr.min.js"></script>
 
   <link rel="stylesheet" href="/css/plugin/cms/admin.css?v={{_site.version}}" />
@@ -30,7 +30,7 @@
 <header>
 <div id="TOP_HEADER">
   <div class="top-title left padding">
-  {{_site.title}}
+  <a href="/">{{_site.title}}</a>
   </div>
 
   <div class="right padding" style="">
@@ -105,12 +105,12 @@
 
 
 <footer>
-     <p>&copy;{{_site.title}}</p>
+     <p>&copy; {{_site.title}}</p>
 
 </footer>
 
 <script src="/js/vendor/jquery.min.js"></script>
-<script src="/js/vendor/foundation.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/foundation/6.4.3/js/foundation.min.js"></script>
 <script>
   $(document).foundation();
 </script>

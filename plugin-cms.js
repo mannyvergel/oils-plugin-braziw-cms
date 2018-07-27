@@ -12,7 +12,7 @@ module.exports = function(pluginConf, web, next) {
   web.cms.conf = pluginConf;
   let context = pluginConf.context;
   
-  self.routes = {};
+  var routes = {};
 
 
   let DmsUtils = require('./utils/DmsUtils');
@@ -69,7 +69,7 @@ module.exports = function(pluginConf, web, next) {
 
   if (web.auth && pluginConf.accessRole) {
     
-    self.routes['/^' + context + '*/'] = {
+    routes['/^' + context + '*/'] = {
       isRegexp: true,
       all: function(req, res, next) {
         web.auth.loginUtils.handleRole(pluginConf.accessRole, req, res, next);
@@ -82,43 +82,41 @@ module.exports = function(pluginConf, web, next) {
     options._cms = web.cms;
   });
 
-  // self.routes[context] = function(req, res) {
-  //   res.redirect(context + '/document/list');
-  // }
+  
 
-  self.routes[context] = web.include(pluginConf.contextController);
+  routes[context] = web.include(pluginConf.contextController);
 
-  self.routes[context + '/dashboard'] = require('./controllers/admin/dashboard.js')(pluginConf, web);
+  routes[context + '/dashboard'] = require('./controllers/admin/dashboard.js')(pluginConf, web);
 
-  self.routes[context + '/document/list'] = require('./controllers/document/list.js')(pluginConf, web);
-  //self.routes[context + '/document/add/:DOC_TYPE'] = require('./controllers/document/add.js')(pkg, web);
-  self.routes[context + '/document/add'] = require('./controllers/document/add.js')(pluginConf, web);
-  self.routes[context + '/document/edit/:FILE_ID'] = require('./controllers/document/add.js')(pluginConf, web);
-  self.routes[context + '/document/delete/:DOC_ID'] = require('./controllers/document/delete.js')(pluginConf, web);
+  routes[context + '/document/list'] = require('./controllers/document/list.js')(pluginConf, web);
+  //routes[context + '/document/add/:DOC_TYPE'] = require('./controllers/document/add.js')(pkg, web);
+  routes[context + '/document/add'] = require('./controllers/document/add.js')(pluginConf, web);
+  routes[context + '/document/edit/:FILE_ID'] = require('./controllers/document/add.js')(pluginConf, web);
+  routes[context + '/document/delete/:DOC_ID'] = require('./controllers/document/delete.js')(pluginConf, web);
 
-  self.routes[context + '/site-settings'] = require('./controllers/admin/site-settings.js')(pluginConf, web);
+  routes[context + '/site-settings'] = require('./controllers/admin/site-settings.js')(pluginConf, web);
 
-  self.routes[context + '/document/upload'] = require('./controllers/document/upload.js');
-  self.routes[context + '/document/download'] = require('./controllers/document/download.js');
+  routes[context + '/document/upload'] = require('./controllers/document/upload.js');
+  routes[context + '/document/download'] = require('./controllers/document/download.js');
 
-  self.routes['/css/plugin/cms/admin.css'] = {
+  routes['/css/plugin/cms/admin.css'] = {
     get: function(req, res) {
       web.utils.serveStaticFile(pluginConf.pluginPath + '/static/admin.css', res);
     }
   };
 
-  self.routes['/css/plugin/cms/dms.css'] = {
+  routes['/css/plugin/cms/dms.css'] = {
     get: function(req, res) {
       web.utils.serveStaticFile(pluginConf.pluginPath + '/static/dms.css', res);
     }
   };
 
-  self.routes['/js/plugin/cms/list-dropzone.js'] = {
+  routes['/js/plugin/cms/list-dropzone.js'] = {
     get: function(req, res) {
       web.utils.serveStaticFile(pluginConf.pluginPath + '/static/list-dropzone.js', res);
     }
   };
-  web.addRoutes(self.routes);
+  web.addRoutes(routes);
   web.cms.utils.initDocRoutes();
 
   // let WCM = require('./wcm/wcm.js');
