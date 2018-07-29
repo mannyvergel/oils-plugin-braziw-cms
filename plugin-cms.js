@@ -127,8 +127,7 @@ module.exports = function(pluginConf, web, next) {
   let updateSiteSettingCache = function(options) {
     SiteSetting.findOne({docType:'SiteSetting'}).lean().exec(function(err,siteSetting) {
       web.cms.siteSettingCache = web.cms.siteSettingCache || {
-        title: pluginConf.defaultSiteTitle,
-        currency: 'P'
+        title: pluginConf.defaultSiteTitle
       };
 
       if (siteSetting) {
@@ -137,9 +136,7 @@ module.exports = function(pluginConf, web, next) {
           options._site  = web.cms.siteSetting;
         }
 
-        if (console.isDebug) {
-          console.debug('Site setting cache updated: ' + JSON.stringify(siteSetting));
-        }
+        console.log('Site setting cache updated: ' + JSON.stringify(siteSetting));
         
       }
       

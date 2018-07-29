@@ -1,6 +1,6 @@
 module.exports = function(pluginConf, web) {
 
-  const Document = web.includeModel(pluginConf.models.Document);
+  let Document = web.includeModel(pluginConf.models.Document);
   const context = pluginConf.context;
   const mongoose = web.require('mongoose');
   const dmsUtils = web.cms.utils;
