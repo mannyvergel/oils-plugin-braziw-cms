@@ -19,7 +19,7 @@
 {%if customDocType%}
 {%set customDocTypeUrl = '/' + customDocType %}
 {%endif%}
- <form name="myForm" action="{{context|safe}}/document/add{{customDocTypeUrl}}" method="post">
+ <form name="myForm" action="{{context|safe}}/document/add" method="post">
    <input type="hidden" name="_csrf" value="{{_csrf}}"/>
     <input type="hidden" name="folderId" value="{{folderId}}"/>
     {%if doc._id%}

@@ -49,7 +49,7 @@ module.exports = function(pluginConf, web) {
             {context: context, folderId: folderId, isFolder: doc.isFolder, doc: doc, modelEditables: modelEditables, docTypeMap: docTypeMap});
           })
         } else {
-          //let docType = req.params['DOC_TYPE'];
+       
           let doc = new Object();
 
           doc.docType = req.query.docType || web.cms.constants.file;
@@ -57,7 +57,7 @@ module.exports = function(pluginConf, web) {
           doc.controller = doc.controller || '';
           let modelEditables = getModelEditables(doc.docType);
           res.renderFile(pluginConf.views.addDocument, 
-          {context: context, folderId: folderId, isFolder: req.query.isFolder, doc: doc, customDocType: docType, modelEditables: modelEditables, docTypeMap: docTypeMap});
+          {context: context, folderId: folderId, isFolder: req.query.isFolder, doc: doc, customDocType: doc.docType, modelEditables: modelEditables, docTypeMap: docTypeMap});
         }
         
 
