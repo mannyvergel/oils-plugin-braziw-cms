@@ -27,8 +27,7 @@ module.exports = function(pluginConf, web) {
           let options = {
             documents: documents, 
             context: context, 
-            folderId: 
-            folderId, 
+            folderId: folderId, 
             parentFolders: parentFolders,
             folderPath: folderPath,
             defaultDocTypeForAddFile: null

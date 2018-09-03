@@ -20,6 +20,7 @@ module.exports = function(pluginConf) {
     "context": "/admin",
     "accessRole": "ADMIN",
     "showIconDescrip": true,
+    "autoCreateAdminUser": false,
     "uploadDir": uploadDir,
     "adminTemplate": pluginPath + "/views/templates/admin-template.html",
     "models": {

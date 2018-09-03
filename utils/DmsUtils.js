@@ -9,49 +9,61 @@ module.exports = function(pluginConf, web) {
 
 
   self.handleFolder = function(parentFolderId, req, res, callback, parentFolders) {
-    if (parentFolderId) {
-      try {
-        parentFolderId = mongoose.Types.ObjectId(parentFolderId)
-      } catch(e) {
-        console.error('Folder id error: ' + parentFolderId, e);
-        redirectToMainWithError(req, res, 'Invalid folder.');
-        return;
-      }
-      
-    }
-    Document.findOne({_id: parentFolderId}, function(err, folder) {
+    return new Promise(function(resolve, reject) {
       if (parentFolderId) {
-        if (!folder) {
-          console.error('Folder not found error: ' + parentFolderId);
-          redirectToMainWithError(req, res, 'Folder not found.');
-          return
-        }
-      }
-    
-      if (folder) {
-        if (parentFolders == null) {
-          parentFolders = [];
-        }
-        parentFolders.unshift(folder);
-        if (folder.parentFolderId) {
-          self.handleFolder(folder.parentFolderId.toString(), req, res, callback, parentFolders);
-          //WARNING this will return
-          return;  
+        try {
+          parentFolderId = mongoose.Types.ObjectId(parentFolderId)
+        } catch(e) {
+          console.error('Folder id error: ' + parentFolderId, e);
+          redirectToMainWithError(req, res, 'Invalid folder.');
+          return;
         }
         
       }
-
-
-      let folderId = null;
-      if (parentFolders) {
-        folder = parentFolders[parentFolders.length-1];
-        folderId = folder._id.toString();
-      }
-      callback(err, folder, folderId, parentFolders); 
+      Document.findOne({_id: parentFolderId}, function(err, folder) {
+        if (parentFolderId) {
+          if (!folder) {
+            console.error('Folder not found error: ' + parentFolderId);
+            redirectToMainWithError(req, res, 'Folder not found.');
+            return
+          }
+        }
       
-      
+        if (folder) {
+          if (parentFolders == null) {
+            parentFolders = [];
+          }
+          parentFolders.unshift(folder);
+          if (folder.parentFolderId) {
+            self.handleFolder(folder.parentFolderId.toString(), req, res, callback, parentFolders);
+            //WARNING this will return
+            return;  
+          }
+          
+        }
 
-    })
+
+        let folderId = null;
+        if (parentFolders) {
+          folder = parentFolders[parentFolders.length-1];
+          folderId = folder._id.toString();
+        }
+
+        if (callback) {
+          callback(err, folder, folderId, parentFolders); 
+        }
+
+        if (err) {
+          reject(err);
+        } else {
+          resolve(folder, folderId, parentFolders);
+        }
+        
+
+      })
+    });
+
+    
 
     
   }
@@ -111,77 +123,101 @@ module.exports = function(pluginConf, web) {
   };
 
   self.getChildren = function(doc, callback) {
-    Document.find({parentFolderId:doc._id}, function(err, docs) {
-      if (err) throw err;
+    return new Promise(function(resolve, reject) {
+      Document.find({parentFolderId:doc._id}, function(err, docs) {
+        if (err) throw err;
 
-      callback(err, docs);
+        if (callback) {
+          callback(err, docs);
+        }
+
+        resolve(docs);
+      });
     });
+    
   }
 
   self.deleteDoc = function(doc, callback) {
     //breadth first search delete
-    self._breadthFirstSearchDelete([doc], callback);
+    return self._breadthFirstSearchDelete([doc], callback);
   }
 
   //slower but more reliable than recursive
   self._breadthFirstSearchDelete = function(arrDocs, callback) {
-    
-    async.whilst(function() {
-      return arrDocs.length > 0;
-    }, function(asyncCallback) {
-      let lastDoc = arrDocs.pop();
-      if (lastDoc.isFolder) {
-        self.getChildren(lastDoc, function(err, docs) {
-          for (let i in docs) {
-            arrDocs.unshift(docs[i]);
-          }
+    return new Promise(function(resolve, reject) {
+      async.whilst(function() {
+        return arrDocs.length > 0;
+      }, function(asyncCallback) {
+        let lastDoc = arrDocs.pop();
+        if (lastDoc.isFolder) {
+          self.getChildren(lastDoc, function(err, docs) {
+            for (let i in docs) {
+              arrDocs.unshift(docs[i]);
+            }
 
+            if (console.isDebug) {
+              console.debug('Deleting ' + lastDoc.name);
+            }
+            lastDoc.remove(function(err) {
+              if (err) throw err;
+              asyncCallback();
+            })
+          })
+        } else {
           if (console.isDebug) {
-            console.debug('Deleting ' + lastDoc.name);
-          }
+              console.debug('Deleting ' + lastDoc.name);
+            }
           lastDoc.remove(function(err) {
             if (err) throw err;
             asyncCallback();
           })
-        })
-      } else {
-        if (console.isDebug) {
-            console.debug('Deleting ' + lastDoc.name);
-          }
-        lastDoc.remove(function(err) {
-          if (err) throw err;
-          asyncCallback();
-        })
-      }
+        }
 
-    },
+      },
 
-    function(err) {
-      callback(err);
-    })
+      function(err) {
+        if (callback) {
+          callback(err);
+        }
+        if (err) {
+          reject(err);
+        } else {
+          resolve();
+        }
+      })
+    });
+
+    
 
    
   }
 
 
   self.deletePath = function(path, callback) {
-    self.retrieveDoc(path, function(err, doc) {
-      if (err) throw err;
+    return new Promise(function(resolve, reject) {
+      self.retrieveDoc(path, function(err, doc) {
+        if (err) throw err;
 
-      if (!doc) {
-        console.warn('Delete path do not exist ' + path);
-        if (callback) {
-          callback();
-        }
-      } else {
-        self.deleteDoc(doc, function(err) {
-          if (err) throw err;
+        if (!doc) {
+          console.warn('Delete path do not exist ' + path);
           if (callback) {
             callback();
           }
-        })
-      }
+
+          resolve();
+        } else {
+          self.deleteDoc(doc, function(err) {
+            if (err) throw err;
+            if (callback) {
+              callback();
+            }
+
+            resolve();
+          })
+        }
+      })
     })
+    
   }
 
   self.checkExistence = function(name, parentDocId, optionalDocType, callback) {
@@ -189,84 +225,129 @@ module.exports = function(pluginConf, web) {
       callback = optionalDocType;
       optionalDocType = null;
     }
-    let SpecificObject = null;
-    if (optionalDocType) {
-      SpecificObject = web.cms.getCmsModel(optionalDocType);
-    } else {
-      SpecificObject = Document;
-    }
-    SpecificObject.findOne({parentFolderId: parentDocId, lowerCaseName: name.toLowerCase()}, function(err, doc) {
-      callback(err, doc);
-    })
+      
+    return new Promise(function(resolve, reject) {
+      
+      let SpecificObject = null;
+      if (optionalDocType) {
+        SpecificObject = web.cms.getCmsModel(optionalDocType);
+      } else {
+        SpecificObject = Document;
+      }
+      SpecificObject.findOne({parentFolderId: parentDocId, lowerCaseName: name.toLowerCase()}, function(err, doc) {
+        if (callback) {
+          callback(err, doc);
+        }
+
+        if (err) {
+          reject(err);
+        } else {
+          resolve(doc);
+        }
+      })
+    });
+    
   };
 
   self.retrieveDoc = function(path, callback) {
-    let arrPaths = self.getPathAsArray(path);
+    return new Promise(function(resolve, reject) {
+      let arrPaths = self.getPathAsArray(path);
 
-    self._retrieveDocFromArray(arrPaths, function(err, doc) {
-      if (err) throw err;
-      callback(err, doc);
-    })
-  }
-
-  self.retrieveDocById = function(id, callback) {
-    Document.findOne({_id: id}, function(err, doc) {
-      callback(err, doc);
-    })
-  }
-
-  self._retrieveDocFromArray = function(arrPaths, callback, currDoc) {
-    if (arrPaths.length == 0) {
-      callback(null, currDoc);
-      return;
-    }
-
-    // if (console.isDebug) {
-    //   console.debug('Retrieve doc from array: ' + arrPaths);
-    // }
-    let firstFile = arrPaths[0];
-
-    arrPaths.shift();
-
-    let parentDocId = currDoc ? currDoc._id : null;
-
-    self.checkExistence(firstFile, parentDocId, function(err, doc) {
-      if (err) throw err;
-
-      if (!doc) {
-
-        callback();
-      } else {
-        self._retrieveDocFromArray(arrPaths, callback, doc);
-      }
+      self._retrieveDocFromArray(arrPaths, function(err, doc) {
+        if (err) throw err;
+        if (callback) {
+          callback(err, doc);
+        }
+        resolve(doc);
+      })
     });
     
   }
 
-  self.getFolderPath = function(doc, cb, parentFolders) {
-    if (doc.folderPath && !parentFolders) {
-      //console.log('Hello!!', doc.folderPath);
-      cb(null, doc.folderPath);
-      return;
-    }
-    if (parentFolders == null) {
-      parentFolders = [];
-    }
+  self.retrieveDocById = function(id, callback) {
+    return new Promise(function(resolve, reject) {
+      Document.findOne({_id: id}, function(err, doc) {
+        if (callback) {
+          callback(err, doc);
+        }
 
-    if (!doc.parentFolderId) {
-      let folderPath = '/';
-      if (parentFolders && parentFolders.length > 0) {
-        folderPath = folderPath + parentFolders.join('/') + '/';
-      }
-      cb(null, folderPath);
-      return;
-    }
-    //console.log('!!!' + doc.parentFolderId);
-    self.retrieveDocById(doc.parentFolderId, function(err, doc) {
-      if (err) {cb(err, null)}
-      parentFolders.unshift(doc.name);
-      self.getFolderPath(doc, cb, parentFolders);
+        if (err) {
+          reject(err);
+        } else {
+          resolve(doc);
+        }
+      })
     });
+  }
+
+  self._retrieveDocFromArray = function(arrPaths, callback, currDoc) {
+    return new Promise(function(resolve, reject) {
+
+      if (arrPaths.length == 0) {
+        if (callback) {
+          callback(null, currDoc);
+        }
+        resolve(currDoc);
+        return;
+      }
+
+      // if (console.isDebug) {
+      //   console.debug('Retrieve doc from array: ' + arrPaths);
+      // }
+      let firstFile = arrPaths[0];
+
+      arrPaths.shift();
+
+      let parentDocId = currDoc ? currDoc._id : null;
+
+      self.checkExistence(firstFile, parentDocId, function(err, doc) {
+        if (err) throw err;
+
+        if (!doc) {
+          if (callback) {
+            callback();
+          }
+          resolve();
+        } else {
+          self._retrieveDocFromArray(arrPaths, callback, doc);
+        }
+      });
+    });
+
+    
+  }
+
+  self.getFolderPath = function(doc, cb, parentFolders) {
+
+    return new Promise(function(resolve, reject) {
+      if (doc.folderPath && !parentFolders) {
+        //console.log('Hello!!', doc.folderPath);
+        if (cb) {
+          cb(null, doc.folderPath);
+        }
+        resolve(doc.folderPath);
+        return;
+      }
+      if (parentFolders == null) {
+        parentFolders = [];
+      }
+
+      if (!doc.parentFolderId) {
+        let folderPath = '/';
+        if (parentFolders && parentFolders.length > 0) {
+          folderPath = folderPath + parentFolders.join('/') + '/';
+        }
+        cb(null, folderPath);
+        return;
+      }
+      //console.log('!!!' + doc.parentFolderId);
+      self.retrieveDocById(doc.parentFolderId, function(err, doc) {
+        if (err) {cb(err, null)}
+        parentFolders.unshift(doc.name);
+        self.getFolderPath(doc, cb, parentFolders);
+      });
+    });
+    
    
   }
 
@@ -276,65 +357,82 @@ module.exports = function(pluginConf, web) {
       optionalContent = null;
     }
 
-    if (optionalContent !== null && typeof optionalContent === 'string') {
-      let strValue = optionalContent;
-      optionalContent = new Object();
-      optionalContent.content = strValue;
-    }
+    return new Promise(function(resolve, reject) { 
 
-    let parentDir = _path.dirname(path);
-    self.mkdirs(parentDir, function(err, parentDoc) {
-      if (err) throw err;
-
-      let basename = _path.basename(path);
-      let parentDocId = parentDoc ? parentDoc._id : null
-
-      let myDocType = null;
-      if (optionalContent && optionalContent.docType) {
-        myDocType = optionalContent.docType;
+      if (optionalContent !== null && typeof optionalContent === 'string') {
+        let strValue = optionalContent;
+        optionalContent = new Object();
+        optionalContent.content = strValue;
       }
 
-      self.checkExistence(basename, parentDoc, myDocType, function(err, doc) {
+      let parentDir = _path.dirname(path);
+      self.mkdirs(parentDir, function(err, parentDoc) {
+
         if (err) throw err;
 
-        if (!doc) {
-          if (myDocType) {
-            let SpecificObject = web.cms.getCmsModel(myDocType);
-            doc = new SpecificObject();
-          } else {
-            doc = new Document();
-          }
-          
-      
-          doc.name = basename;
-          if (parentDoc) {
-            doc.parentFolderId = parentDoc._id;
-          }
+        let basename = _path.basename(path);
+        let parentDocId = parentDoc ? parentDoc._id : null
 
-          doc.docType = web.cms.constants.file;
-
-          if (optionalContent) {
-            for (let i in optionalContent) {
-              doc[i] = new Buffer(optionalContent[i], "utf8");  
-            }
-          }
-
-          doc.save(function(err) {
-            if (err) {
-              callback(err);
-            } else {
-              callback(null, doc, false);
-            }
-          });
-
-
-        } else {
-          callback(null, doc, true);
+        let myDocType = null;
+        if (optionalContent && optionalContent.docType) {
+          myDocType = optionalContent.docType;
         }
-      })
-     
-      
+
+        self.checkExistence(basename, parentDoc, myDocType, function(err, doc) {
+          if (err) throw err;
+
+          if (!doc) {
+            if (myDocType) {
+              let SpecificObject = web.cms.getCmsModel(myDocType);
+              doc = new SpecificObject();
+            } else {
+              doc = new Document();
+            }
+            
+        
+            doc.name = basename;
+            if (parentDoc) {
+              doc.parentFolderId = parentDoc._id;
+            }
+
+            doc.docType = web.cms.constants.file;
+
+            if (optionalContent) {
+              for (let i in optionalContent) {
+                doc[i] = new Buffer(optionalContent[i], "utf8");  
+              }
+            }
+
+            doc.save(function(err) {
+              if (err) {
+                if (callback) {
+                  callback(err);
+                }
+                reject(err);
+              } else {
+                if (callback) {
+                  callback(null, doc, false);
+                }
+                resolve(doc, false);
+              }
+            });
+
+
+          } else {
+            if (callback) {
+              callback(null, doc, true);
+            }
+
+            resolve(doc, true);
+
+          }
+        })
+       
+        
+      });
     });
+
+    
   };
 
   self.getPathAsArray = function(path) {
@@ -346,32 +444,47 @@ module.exports = function(pluginConf, web) {
   self.mkdirs = function(path, callback) {
     let arrFolders = self.getPathAsArray(path);
     //console.log('!' + arrFolders);
-    _mkdirs(arrFolders, callback, 0);
+    return _mkdirs(arrFolders, callback, 0);
    
   };
 
   let _mkdirs = function(arrFolders, callback, index, parentFolderId) {
-    let folderName = arrFolders[index];
-    //console.log('ZZZ!!!' + folderName);
-    Document.findOne({parentFolderId: parentFolderId, lowerCaseName: folderName.toLowerCase()}, function(err, doc) {
-      if (!doc) {
-        doc = new Document();
-        doc.name = folderName;
-        
-        doc.parentFolderId = parentFolderId;
-        doc.docType = web.cms.constants.folder;
-        doc.save(function(err) {
-          if (err) {
-            console.error(err);
-          } else {
-            _handleMkdirsCallback(doc, arrFolders, callback, index, parentFolderId);
+    return new Promise(function(resolve, reject) {
+      let folderName = arrFolders[index];
+      //console.log('ZZZ!!!' + folderName);
+      Document.findOne({parentFolderId: parentFolderId, lowerCaseName: folderName.toLowerCase()}, function(err, doc) {
+        let myCb = function(err, doc) {
+          if (callback) {
+            callback(err, doc);
           }
-        });
-      } else {
-        _handleMkdirsCallback(doc, arrFolders, callback, index, parentFolderId);
-      }
-      
-    })
+
+          if (err) {
+            reject(err);
+          } else {
+            resolve(doc);
+          }
+        }
+        if (!doc) {
+          doc = new Document();
+          doc.name = folderName;
+          
+          doc.parentFolderId = parentFolderId;
+          doc.docType = web.cms.constants.folder;
+          doc.save(function(err) {
+            if (err) {
+              console.error(err);
+            } else {
+              _handleMkdirsCallback(doc, arrFolders, myCb, index, parentFolderId);
+            }
+          });
+        } else {
+          _handleMkdirsCallback(doc, arrFolders, myCb, index, parentFolderId);
+        }
+        
+      })
+    });
+
+    
   };
 
   let _handleMkdirsCallback = function(doc, arrFolders, callback, index, parentFolderId) {

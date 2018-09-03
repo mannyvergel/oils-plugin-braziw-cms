@@ -224,18 +224,22 @@ module.exports = function(pluginConf, web, next) {
 
 
       function cmsRunOnce() {
-        if (web.auth) {
+        if (web.auth && pluginConf.autoCreateAdminUser) {
           let User = web.auth.UserModel;
 
 
           let saveAdminUser = function() {
+
+            //deprecated, auth plugin now handles admin registration for new websites
+
+            if (!pluginConf.defaultAdminPassword) {
+              throw new Error("cms-pluginConf.defaultAdminPassword is required");
+            }
             let user = new User();
               user.username = 'admin';
-              user.password = 'abcd1234';
-              user.birthday= new Date();
-              user.lastname ='John';
-              user.firstname = 'Doe';
-              user.middlename = 'Admin';
+              user.password = pluginConf.defaultAdminPassword;
+              user.birthday = new Date();
+           
               user.role = 'ADMIN';
               user.fullname = 'Admin';
               user.nickname = 'Admin';
