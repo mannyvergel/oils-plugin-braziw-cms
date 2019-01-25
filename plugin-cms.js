@@ -1,5 +1,5 @@
 module.exports = function(pluginConf, web, next) {
-  let pjson = require('./package.json');
+  let pjson = require(web.conf.baseDir + '/package.json');
   let self = this;
 
   web.cms = self;
