@@ -321,7 +321,7 @@ module.exports = function(pluginConf, web) {
 
     return new Promise(function(resolve, reject) {
       if (doc.folderPath && !parentFolders) {
-        //console.log('Hello!!', doc.folderPath);
+        //console.log('Hello!!', doc._id, doc.folderPath, parentFolders);
         if (cb) {
           cb(null, doc.folderPath);
         }
@@ -337,12 +337,21 @@ module.exports = function(pluginConf, web) {
         if (parentFolders && parentFolders.length > 0) {
           folderPath = folderPath + parentFolders.join('/') + '/';
         }
-        cb(null, folderPath);
+        if (cb) {
+          cb(null, folderPath);
+        }
+        resolve(folderPath);
         return;
       }
       //console.log('!!!' + doc.parentFolderId);
       self.retrieveDocById(doc.parentFolderId, function(err, doc) {
-        if (err) {cb(err, null)}
+        if (err) {
+          if (cb) {
+            cb(err, null);
+          }
+          reject(err);
+          return;
+        }
         parentFolders.unshift(doc.name);
         self.getFolderPath(doc, cb, parentFolders);
       });
