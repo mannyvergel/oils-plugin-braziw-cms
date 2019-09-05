@@ -145,8 +145,8 @@ module.exports = function(pluginConf, web) {
   //slower but more reliable than recursive
   self._breadthFirstSearchDelete = function(arrDocs, callback) {
     return new Promise(function(resolve, reject) {
-      async.whilst(function() {
-        return arrDocs.length > 0;
+      async.whilst(function(cb) {
+        cb(null, arrDocs.length > 0);
       }, function(asyncCallback) {
         let lastDoc = arrDocs.pop();
         if (lastDoc.isFolder) {
