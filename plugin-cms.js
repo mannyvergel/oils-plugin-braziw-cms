@@ -99,6 +99,18 @@ module.exports = function(pluginConf, web, next) {
   routes[context + '/document/upload'] = require('./controllers/document/upload.js');
   routes[context + '/document/download'] = require('./controllers/document/download.js');
 
+  routes['/plugin/cms/codemirror/codemirror.min.css'] = {
+    get: function(req, res) {
+      web.utils.serveStaticFile(pluginConf.pluginPath + '/static/codemirror/codemirror.min.css', res);
+    }
+  };
+
+  routes['/plugin/cms/codemirror/codemirror.min.js'] = {
+    get: function(req, res) {
+      web.utils.serveStaticFile(pluginConf.pluginPath + '/static/codemirror/codemirror.min.js', res);
+    }
+  };
+
   routes['/css/plugin/cms/admin.css'] = {
     get: function(req, res) {
       web.utils.serveStaticFile(pluginConf.pluginPath + '/static/admin.css', res);
@@ -131,6 +143,7 @@ module.exports = function(pluginConf, web, next) {
       };
 
       if (siteSetting) {
+        siteSetting.version = siteSetting.version || web.conf.siteVersion || pjson.version;
         web.cms.siteSettingCache = siteSetting;
         if (options) {
           options._site  = web.cms.siteSetting;
@@ -150,7 +163,6 @@ module.exports = function(pluginConf, web, next) {
     
     options = options || {};
     let site = web.cms.siteSettingCache || {};
-    site.version = pjson.version;
     options._site = site;
 
   });
@@ -171,55 +183,6 @@ module.exports = function(pluginConf, web, next) {
         cmsRunOnce();
 
         web.syspars.set('CMS_RUN_ONCE', 'Y');
-      } else {
-        //TODO: [11/21/2017] in far future, migration is not needed anymore.
-        
-        if (!syspar.createDt) {
-          //createDt feature was added after this
-          migrateTimestamp();
-        }
-      }
-
-      function migrateTimestamp() {
-        //migrate old documents with subroot meta {timestamp} 
-        web.runOnce('CMS_MIGRATE_TIMESTAMP', function() {
-          
-          Document.find({}, function(err, documents) {
-            if (!documents) {
-              console.log("Nothing to migrate");
-              return;
-            }
-
-            console.log("Start migration of doc timestamps.");
-
-            for (let i=0; i<documents.length; i++) {
-              let doc = documents[i];
-             
-              if (doc.meta) {
-                doc.createBy = doc.createBy || doc.meta.createBy;
-                doc.createDt = doc.createDt || doc.meta.createDt;
-                doc.updateDt = doc.updateDt || doc.meta.lastUpdateDt;
-                doc.updateBy = doc.updateBy || doc.meta.lastUpdateBy;
-
-                doc.meta = undefined;
-                doc.save(function(err) {
-                  if (err) {
-                    console.error(err);
-                  }
-
-                  Document.update({_id: doc._id}, {$unset: {meta: 1 }}, function(err) {
-                    if (err) {
-                      console.error(err);
-                    }
-                  });
-                });
-              }
-              
-            }
-
-            console.log("Migrated", documents.length, "doc timestamps.");
-          });
-        });
       }
 
 
@@ -268,7 +231,6 @@ module.exports = function(pluginConf, web, next) {
           if (!siteSetting) {
             siteSetting = new SiteSetting();
             siteSetting.title = pluginConf.defaultSiteTitle;
-            siteSetting.currency = 'P';
             siteSetting.save(function(err) {
               if (err) throw err;
                 web.cms.updateSiteSettingCache();

@@ -3,11 +3,22 @@
 {% block title %}Save Document{% endblock %}
 
 {% block head %}
+<link rel="stylesheet" href="/plugin/cms/codemirror/codemirror.min.css" />
+<script src="/plugin/cms/codemirror/codemirror.min.js"></script>
+{%if cmMode%}
+<script src="//cdn.jsdelivr.net/npm/codemirror@5.51.0/mode/{{cmMode}}/{{cmMode}}.js"></script>
+{%endif%}
+
 <style>
 .label {
   width: 80px;
   display: inline-block;
 
+}
+
+.CodeMirror {
+  border: 1px solid #ccc;
+  padding: 3px;
 }
 </style>
 {% endblock %}
@@ -87,7 +98,7 @@
           {%if doc.mimeType and 'image' in doc.mimeType %}
             <img src="{{context|safe}}/document/download?_id={{doc._id.toString()|urlencode}}" alt="Img" />
           {%else%}
-            <textarea  class="form-control" name="{{editable.name}}" placeholder="{{editable.label}}" style="width: 100%; height: 400px;">{%set fileItem = doc['content']%}{%if fileItem%}{{fileItem.toString('utf8')}}{%endif%}</textarea>
+            <textarea id="MAIN_EDIT_TEXT" class="form-control" name="{{editable.name}}" placeholder="{{editable.label}}" style="width: 100%; height: 400px;">{%set fileItem = doc['content']%}{%if fileItem%}{{fileItem.toString('utf8')}}{%endif%}</textarea>
           {%endif%}
          
         </div>
@@ -102,7 +113,7 @@
     {%endif%}
     
     
-
+    <br/>
     {%if doc._id%}
     <input class="tiny button btn btn-primary" type="submit" value="Update"/>
     <a href="{{context|safe}}/document/delete/{{doc._id.toString()|urlencode}}" onclick="return confirm('Are you sure you want to delete this?')" class="tiny button btn btn-danger" style="float: right;">Delete</a>
@@ -161,5 +172,14 @@ function reloadDocType(ctrl) {
   url += 'docType=' + $(ctrl).val();
   window.location.href = url;
 }
+
+{%if cmMode%}
+$(function() {
+  var myCodeMirror = CodeMirror.fromTextArea(document.getElementById('MAIN_EDIT_TEXT'), {
+    mode:  "{{cmMode}}",
+    lineWrapping: true,
+  });
+})
+{%endif%}
 </script>
 {% endblock %}

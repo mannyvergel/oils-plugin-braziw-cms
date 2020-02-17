@@ -5,7 +5,8 @@ module.exports = {
 	schema: {
 		name: {type: String, required: true, default: 'site_settings'},
 		docType: {type: String, required:true, default: 'SiteSetting'},
-		title: {type: String}
+		title: {type: String},
+    version: {type: String},
 	},
   initSchema: function(mySchema) {
 
@@ -19,6 +20,7 @@ module.exports = {
   },
 	parentModel: web.cms.conf.models.Document,
 	editables: [
-    {"name": "title", "type": "text", "label": "Site Title", "required":true},
+    {"name": "title", "type": "text", "label": "Title", "required":true},
+    {"name": "version", "type": "text", "label": "Site Version", "required":false},
   ]
 }

@@ -17,15 +17,6 @@ module.exports = {
     fileSize: Number, //optional for now, maybe make it required in the future
     content: Buffer,
 
-    //-------- for compatibility and migration, remove this in the future.
-    meta: {
-      lastUpdateDt: {type: Date},
-      lastUpdateBy: {type: String},
-      createDt: {type: Date},
-      createBy: {type: String}
-    },
-    //--------
-
     updateDt: {type: Date, default: Date.now},
     updateBy: {type: String, default: 'SYSTEM'},
     createDt: {type: Date, default: Date.now},

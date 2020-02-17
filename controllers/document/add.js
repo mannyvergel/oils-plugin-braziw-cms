@@ -45,8 +45,20 @@ module.exports = function(pluginConf, web) {
             }
             doc.route = doc.route || '';
             let modelEditables = getModelEditables(docType);
+
+            let cmMode = null;
+            if (doc.mimeType) {
+              if (doc.mimeType.indexOf("html") !== -1 || doc.mimeType.indexOf("xml") !== -1) {
+                cmMode = "xml";
+              } else if (doc.mimeType.indexOf("javascript") !== -1) {
+                cmMode = "javascript"
+              } else if (doc.mimeType.indexOf("css") !== -1) {
+                cmMode = "css"
+              } 
+            }
+
             res.renderFile(pluginConf.views.addDocument,
-            {context: context, folderId: folderId, isFolder: doc.isFolder, doc: doc, modelEditables: modelEditables, docTypeMap: docTypeMap});
+            {context: context, mimeType: doc.mimeType, cmMode: cmMode, folderId: folderId, isFolder: doc.isFolder, doc: doc, modelEditables: modelEditables, docTypeMap: docTypeMap});
           })
         } else {
        
