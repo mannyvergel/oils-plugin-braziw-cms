@@ -57,7 +57,7 @@ module.exports = function(pluginConf, web) {
               } 
             }
 
-            res.renderFile(pluginConf.views.addDocument,
+            res.render(pluginConf.views.addDocument,
             {context: context, mimeType: doc.mimeType, cmMode: cmMode, folderId: folderId, isFolder: doc.isFolder, doc: doc, modelEditables: modelEditables, docTypeMap: docTypeMap});
           })
         } else {
@@ -68,7 +68,7 @@ module.exports = function(pluginConf, web) {
           doc.route = doc.route || '';
           doc.controller = doc.controller || '';
           let modelEditables = getModelEditables(doc.docType);
-          res.renderFile(pluginConf.views.addDocument, 
+          res.render(pluginConf.views.addDocument, 
           {context: context, folderId: folderId, isFolder: req.query.isFolder, doc: doc, customDocType: doc.docType, modelEditables: modelEditables, docTypeMap: docTypeMap});
         }
         
@@ -130,7 +130,7 @@ module.exports = function(pluginConf, web) {
           if (content) {
 
             if (editable.type == "file") {
-              doc[name] = new Buffer(content, "utf8");
+              doc[name] = Buffer.from(content, "utf8");
               //console.log('SAVEF BUFFER: ' + req.body[name])
             } else if (editable.type == "date") {
               doc[name] = new Date(content);

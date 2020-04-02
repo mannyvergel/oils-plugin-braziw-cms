@@ -1,5 +1,8 @@
+'use strict';
+
 const mongoose = web.require('mongoose');
 const Schema = mongoose.Schema;
+
 module.exports = {
   name: 'Document',
   label: 'File',
@@ -34,7 +37,7 @@ module.exports = {
   initSchema: function(schema){
     schema.index({parentFolderId: 1, lowerCaseName: 1}, {unique: true});
 
-    schema.pre('save', function(next) {
+    schema.pre('save', async function() {
       this.isFolder = (this.docType == web.cms.constants.folder);
       this.lowerCaseName = this.name.toLowerCase();
 
@@ -57,18 +60,16 @@ module.exports = {
       }
 
       let self = this;
-      web.cms.utils.getFolderPath(this, function(err, folderPath) {
-        if (err) {
-          console.error('Get folder path ' + err);
-        }
-
+      let folderPath = await web.cms.utils.getFolderPath(self);
+      if (!folderPath) {
+        console.error('Get folder path ' + err);
+      } else {
         if (console.isDebug) {
           console.debug('Assigning folder path to %s: %s', self.name, folderPath);
         }
 
         self.folderPath = folderPath;
-        next();
-      })
+      }
       
     })
   },

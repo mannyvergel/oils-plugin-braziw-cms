@@ -1,4 +1,4 @@
-module.exports = function(pluginConf, web, next) {
+module.exports = async function(pluginConf, web) {
   let pjson = require(web.conf.baseDir + '/package.json');
   let self = this;
 
@@ -17,6 +17,7 @@ module.exports = function(pluginConf, web, next) {
 
   let DmsUtils = require('./utils/DmsUtils');
   web.cms.utils = new DmsUtils(pluginConf, web);
+  web.dmsUtils = web.cms.utils;
   web.cms.constants = {};
   web.cms.constants.file = 'file';
   web.cms.constants.folder = 'folder';
@@ -78,11 +79,12 @@ module.exports = function(pluginConf, web, next) {
   } 
 
   web.on('beforeRender', function(view, options) {
-    options = options || {};
-    options._cms = web.cms;
+    let cmsObj = {
+      adminMenu: web.cms.adminMenu,
+      conf: web.cms.conf,
+    }
+    options._cms = cmsObj;
   });
-
-  
 
   routes[context] = web.include(pluginConf.contextController);
 
@@ -129,12 +131,9 @@ module.exports = function(pluginConf, web, next) {
     }
   };
   web.addRoutes(routes);
-  web.cms.utils.initDocRoutes();
+  await web.cms.utils.initDocRoutes();
 
-  // let WCM = require('./wcm/wcm.js');
-  // web.cms.wcm = new WCM(pluginConf, web);
-
-  let SiteSetting = web.cms.getCmsModel('SiteSetting');
+  const SiteSetting = web.cms.getCmsModel('SiteSetting');
 
   let updateSiteSettingCache = function(options) {
     SiteSetting.findOne({docType:'SiteSetting'}).lean().exec(function(err,siteSetting) {
@@ -160,89 +159,84 @@ module.exports = function(pluginConf, web, next) {
 
   web.on('beforeRender', function(view, options) {
     
-    
-    options = options || {};
     let site = web.cms.siteSettingCache || {};
     options._site = site;
 
   });
-  web.on('initServer', function() {
+
+  web.on('initServer', async function() {
 
     if (!web.syspars) {
       throw new Error('CMS needs oils-plugin-syspars plugin');
     }
 
     let Document = web.includeModel(pluginConf.models.Document);
-    if (!Document.getModelDictionary().schema.createDt) {
-      throw new Error("Your Document schema is outdated. Please change to latest.");
-    }
 
-    web.syspars.get('CMS_RUN_ONCE', function(err, syspar) {
-      if (!syspar) {
-
-        cmsRunOnce();
-
-        web.syspars.set('CMS_RUN_ONCE', 'Y');
-      }
-
-
-      function cmsRunOnce() {
-        if (web.auth && pluginConf.autoCreateAdminUser) {
-          let User = web.auth.UserModel;
-
-
-          let saveAdminUser = function() {
-
-            //deprecated, auth plugin now handles admin registration for new websites
-
-            if (!pluginConf.defaultAdminPassword) {
-              throw new Error("cms-pluginConf.defaultAdminPassword is required");
-            }
-            let user = new User();
-              user.username = 'admin';
-              user.password = pluginConf.defaultAdminPassword;
-              user.birthday = new Date();
-           
-              user.role = 'ADMIN';
-              user.fullname = 'Admin';
-              user.nickname = 'Admin';
-              user.email = 'admin@example.com';
-              user.save(function(err) {
-                if (err) throw err;
-              });
-              console.log('Admin user saved.');
-          };
-
-          console.log('First time to run. Running DMS init data.');
-           //init-data
-          User.findOne({username:'admin'}, function(err, user) {
-            if (!user) {
-              saveAdminUser();
-            } else if (user.role != 'ADMIN') {
-              user.remove(function() {
-                saveAdminUser();
-              });
-            }
-            
-          });
-        }
-
-        SiteSetting.findOne({docType:'SiteSetting'}, function(err, siteSetting) {
-          if (!siteSetting) {
-            siteSetting = new SiteSetting();
-            siteSetting.title = pluginConf.defaultSiteTitle;
-            siteSetting.save(function(err) {
-              if (err) throw err;
-                web.cms.updateSiteSettingCache();
-            });
-          }
-        });
-      }
-    });
-
+    await web.runOnce('CMS_RUN_ONCE', async function() {
+      await cmsRunOnce();
+    })
+      
   });
   
 
-  next();
+
+
+  async function cmsRunOnce() {
+    if (web.auth && pluginConf.autoCreateAdminUser) {
+      let User = web.auth.UserModel;
+
+
+      let saveAdminUser = function() {
+
+        //deprecated, auth plugin now handles admin registration for new websites
+
+        if (!pluginConf.defaultAdminPassword) {
+          throw new Error("cms-pluginConf.defaultAdminPassword is required");
+        }
+        let user = new User();
+          user.username = 'admin';
+          user.password = pluginConf.defaultAdminPassword;
+          user.birthday = new Date();
+       
+          user.role = 'ADMIN';
+          user.fullname = 'Admin';
+          user.nickname = 'Admin';
+          user.email = 'admin@example.com';
+          user.save(function(err) {
+            if (err) throw err;
+          });
+          console.log('Admin user saved.');
+      };
+
+      console.log('First time to run. Running DMS init data.');
+       //init-data
+      User.findOne({username:'admin'}, function(err, user) {
+        if (!user) {
+          saveAdminUser();
+        } else if (user.role != 'ADMIN') {
+          user.remove(function() {
+            saveAdminUser();
+          });
+        }
+        
+      });
+    }
+
+    SiteSetting.findOne({docType:'SiteSetting'}, function(err, siteSetting) {
+      if (!siteSetting) {
+        siteSetting = new SiteSetting();
+        siteSetting.title = pluginConf.defaultSiteTitle;
+        siteSetting.save(function(err) {
+          if (err) throw err;
+            web.cms.updateSiteSettingCache();
+        });
+      }
+    });
+  }
+
 };
+
+
+
+
 

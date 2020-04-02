@@ -34,7 +34,7 @@ module.exports = function(pluginConf, web) {
           };
 
           web.callEvent('cms.beforeRenderList', [options, req, res])
-          res.renderFile(pluginConf.views.list, options);
+          res.render(pluginConf.views.list, options);
         })
 
       })
