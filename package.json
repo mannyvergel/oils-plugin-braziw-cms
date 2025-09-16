@@ -1,6 +1,6 @@
 {
   "name": "oils-plugin-braziw-cms",
-  "version": "9.0.0",
+  "version": "12.0.0",
   "description": "Content and document management system plugin for oils js",
   "keywords": [
     "cms",
@@ -22,13 +22,12 @@
     "url": "https://www.github.com/mannyvergel/oils-plugin-braziw-cms.git"
   },
   "engines": {
-    "node": ">= 10.0.0"
+    "node": ">= 18.7.0"
   },
   "dependencies": {
-    "multer": "^1.4.5-lts.1"
+    "multer": "^2.0.2"
   },
   "license": "MIT",
-  "devDependencies": {},
   "bundleDependencies": [],
   "private": false,
   "main": "plugin-cms.js"

@@ -8,6 +8,8 @@ const util = require('util');
 const readFile = util.promisify(fs.readFile);
 
 module.exports = {
+  enableCsrfToken: false,
+  
 	post: [upload.any(), async function(req, res) {
     
     try {
